@@ -1,6 +1,6 @@
-name: seismic-isolation-forest
+name: seismic-if-env
 dependencies:
-  - python~=3.10.14
+  - python~=3.10.12
   - pip
   - pip:
     - -r requirements.txt
