@@ -6,7 +6,6 @@ def sliding_windows_from_trace(inp, window_size=10000, overlap=5000):
     start_time = inp.stats.starttime
     sr = inp.stats.sampling_rate
 
-    times = inp.times()
     inp = np.array(inp)
 
     if inp.shape[0] < window_size:

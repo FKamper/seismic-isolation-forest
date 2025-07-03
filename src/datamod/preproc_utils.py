@@ -16,10 +16,11 @@ def preproc_stream(st: obspy.Stream, resp_path="") -> None:
     """
 
     # Corner frequencies for pre-filtering
-    pre_filt = [0.005, 0.006, 45.0, 59.0]
+    # pre_filt = [0.005, 0.006, 45.0, 59.0]
 
     # Tapering to prevent edge-effects when filtering
     taper = False
+    target_sr = 100
 
     # Loop over all traces and apply pre-processing
     for tr in st:
@@ -28,14 +29,14 @@ def preproc_stream(st: obspy.Stream, resp_path="") -> None:
         if taper:
             tr.taper(0.1)
 
-        tr_id = tr.get_id()
+        # tr_id = tr.get_id()
 
-        if tr.stats.sampling_rate != 100:
+        if tr.stats.sampling_rate != target_sr:
             tr.stats.orig_sample_rate = tr.stats.sampling_rate
-            if tr.stats.sampling_rate > 100:
-                tr.resample(100, window="hann", no_filter=False)
+            if tr.stats.sampling_rate > target_sr:
+                tr.resample(target_sr, window="hann", no_filter=False)
             else:
-                tr.resample(100, window="hann", no_filter=True)
+                tr.resample(target_sr, window="hann", no_filter=True)
         else:
             tr.stats.orig_sample_rate = tr.stats.sampling_rate
 
