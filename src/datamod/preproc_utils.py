@@ -1,4 +1,5 @@
 import obspy
+import numpy as np
 
 
 def preproc_stream(st: obspy.Stream, resp_path="") -> None:
@@ -49,5 +50,19 @@ def preproc_stream(st: obspy.Stream, resp_path="") -> None:
                 endtime=tr.stats.endtime
                 - 0.1 * (tr.stats.endtime - tr.stats.starttime),
             )
+
+    return st
+
+
+def normalize_stream(st: obspy.Stream) -> None:
+    arr = np.zeros(0)
+    for tr in st:
+        arr = np.append(arr, tr.data)
+
+    m = np.median(arr)
+    s = np.mean(np.abs(arr - m))
+
+    for tr in st:
+        tr.data = (tr.data - m) / s
 
     return st
