@@ -6,7 +6,7 @@ from datamod.loading_utils import sliding_windows_from_stream
 
 
 def train_if(stream_paths, norm=True, preproc=True, if_mod=None, max_val=np.inf):
-    if if_mod == None:
+    if if_mod is None:
         if_mod = IF(
             n_estimators=0, max_features=1.0, warm_start=True, n_jobs=16, random_state=0
         )
