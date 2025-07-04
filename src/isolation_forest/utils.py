@@ -100,3 +100,29 @@ def compute_scores(
     scores_df = scores_df.iloc[np.argsort(scores_df["start"]), :].reset_index(drop=True)
 
     return scores_df
+
+
+def create_if_stream(scores_df, station="?", sr=0.02, network="?"):
+    if_stream = obspy.Stream()
+    j = 0
+
+    while j < scores_df.shape[0] - 1:
+        t0 = scores_df.iloc[j, 0]
+        sc = [scores_df.iloc[j, 2]]
+
+        for i in range(j + 1, scores_df.shape[0]):
+            if scores_df.iloc[i, 0] - scores_df.iloc[i - 1, 0] > 1 / sr:
+                break
+            sc.append(scores_df.iloc[i, 2])
+
+        j = i
+
+        tr = obspy.Trace(data=np.array(sc))
+        tr.stats.sampling_rate = sr
+        tr.stats.starttime = t0
+        tr.stats.channel = "IF"
+        tr.stats.station = station
+        tr.stats.network = network
+        if_stream += tr
+
+    return if_stream
