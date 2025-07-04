@@ -96,3 +96,31 @@ def remove_overlaps(stream):
                 non_overlapping_traces.append(trace)
 
     return non_overlapping_traces
+
+
+def preproc_flow_annotations(flows):
+    start = []
+    for i in flows["start"]:
+        t0 = i
+
+        if "T" in t0:
+            t0 = t0.replace("Z", "")
+        else:
+            t0 = t0.replace(" ", "T")
+        start.append(t0)
+
+    flows["start"] = [obspy.UTCDateTime(i) for i in start]
+
+    stop = []
+    for i in flows["stop"]:
+        t0 = i
+
+        if "T" in t0:
+            t0 = t0.replace("Z", "")
+        else:
+            t0 = t0.replace(" ", "T")
+        stop.append(t0)
+
+    flows["stop"] = [obspy.UTCDateTime(i) for i in stop]
+
+    return flows
