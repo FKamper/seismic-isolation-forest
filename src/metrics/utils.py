@@ -70,3 +70,35 @@ def est_thresholds(df, gt, mode="lower"):
     k = np.argmax(iou_scores)
 
     return iou_scores[k], unique_lens[k], score_thres[k]
+
+
+def compute_statistics(detections, gt):
+    if len(detections) == 0:
+        return {
+            "iou": np.nan,
+            "recall": 0,
+            "FN": gt.shape[0],
+            "precision": np.nan,
+            "FP": 0,
+            "TP": 0,
+        }
+
+    intersection, union, _ = iou(detections, gt)
+    iou_val = 100 * (intersection / union)[-1]
+
+    FP = np.sum(np.append(intersection[0], np.diff(intersection)) == 0)
+    intersection, _, _ = iou(gt, detections)
+    TP = np.sum(np.append(intersection[0], np.diff(intersection)) > 0)
+    FN = np.sum(np.append(intersection[0], np.diff(intersection)) == 0)
+
+    recall = 100 * TP / (TP + FN)
+    precision = 100 * (TP / (TP + FP))
+
+    return {
+        "iou": iou_val,
+        "recall": recall,
+        "FN": FN,
+        "precision": precision,
+        "FP": FP,
+        "TP": TP,
+    }
