@@ -1,6 +1,8 @@
 import numpy as np
 import obspy
-from datetime import timedelta
+import pandas as pd
+from datetime import timedelta, datetime
+from datamod.preproc_utils import preproc_stream
 
 
 def sliding_windows_from_trace(inp, window_size=10000, stride=5000):
@@ -124,3 +126,55 @@ def preproc_flow_annotations(flows):
     flows["stop"] = [obspy.UTCDateTime(i) for i in stop]
 
     return flows
+
+
+def date_to_year_day(date_str):
+    """Converts a date in 'YYYY-MM-DD' format to 'YYYY.DDD' where DDD is the day of the year with leading zeros."""
+    date = datetime.strptime(date_str, "%Y-%m-%d")
+    year = date.year
+    day_of_year = date.timetuple().tm_yday
+    return f"{year}.{day_of_year:03d}"
+
+
+def find_date_in_strings(strings, date_str):
+    """Finds strings that contain the specified date."""
+    target = date_to_year_day(date_str)
+    return [s for s in strings if target in s]
+
+
+def read_segment(t0, t1, paths):
+    d1 = str(t0)[:10]
+    d2 = str(t1)[:10]
+
+    t0 = obspy.UTCDateTime(str(t0))
+    t1 = obspy.UTCDateTime(str(t1))
+
+    st = obspy.Stream()
+    for i in pd.date_range(start=d1, end=d2, freq="D"):
+        new_st = obspy.read(find_date_in_strings(paths, str(i)[:10])[0])
+        st += new_st
+
+    preproc_stream(st)
+    st = remove_overlaps(remove_duplicate_traces(st))
+    st.trim(t0, t1)
+
+    x = np.array([])
+    for tr in st:
+        x = np.append(x, tr.data)
+
+    new_tr = obspy.Trace()
+    new_tr.data = x
+    new_tr.stats.sampling_rate = tr.stats.sampling_rate
+    new_tr.stats.starttime = t0
+
+    return new_tr
+
+
+def extract_template(t0, t1, if_mod, paths, window_size=10000, stride=5000):
+    tr = read_segment(t0, t1, paths)
+    X, _ = sliding_windows_from_trace(tr, window_size=window_size, stride=stride)
+
+    if_scores = -if_mod.score_samples(X)
+    tem = X[np.argmax(if_scores), :]
+
+    return (tem - np.mean(tem)) / np.std(tem)
