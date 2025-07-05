@@ -20,7 +20,7 @@ def trace_trigger_detections(tr, onset_thres, offset_thres, lag=100):
         t1 = tr.stats.starttime + timedelta(seconds=i[1] / sr) + timedelta(seconds=lag)
 
         sc = np.max(tr.data[i[0] : (i[1] + 1)])
-        dtc.append({"start": t0, "stop": t1, "anomaly_scores": sc})
+        dtc.append({"start": t0, "stop": t1, "scores": sc})
 
     return dtc
 
@@ -36,7 +36,7 @@ def stream_trigger_detections(st, onset_thres, offset_thres, lag=100):
         )
 
     dtc = pd.concat(dtc).reset_index(drop=True)
-    ord = np.flip(np.argsort(np.array(dtc["anomaly_scores"])))
+    ord = np.flip(np.argsort(np.array(dtc["scores"])))
     dtc = dtc.iloc[ord, :].reset_index(drop=True)
 
     return dtc
