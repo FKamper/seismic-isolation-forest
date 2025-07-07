@@ -1,6 +1,6 @@
 from fastdtw import fastdtw
 import numpy as np
-from datamod.loading_utils import extract_template
+from datamod.loading_utils import extract_template, sliding_windows_from_trace
 from datetime import timedelta
 
 
@@ -20,3 +20,26 @@ def template_dtw(t0, t1, paths, templates, if_mod, window_size=10000, stride=500
             for i in range(templates.shape[0])
         ]
     )
+
+
+def segment_dtw(seg1, seg2, if_mod, window_size=10000, stride=5000):
+    X1, _ = sliding_windows_from_trace(seg1, window_size, stride)
+    scores_seg1 = -if_mod.score_samples(X1)
+
+    X2, _ = sliding_windows_from_trace(seg2, window_size, stride)
+    scores_seg2 = -if_mod.score_samples(X2)
+    _, path = fastdtw(scores_seg1, scores_seg2)
+
+    dtw_dists = []
+
+    for i in range(len(path)):
+        print(np.round(100 * (i / len(path))), "%", end=" \r")
+        x = X1[path[i][0], :]
+        x = (x - np.mean(x)) / np.std(x)
+
+        y = X2[path[i][1], :]
+        y = (y - np.mean(y)) / np.std(y)
+
+        dtw_dists.append(fastdtw(x, y)[0])
+
+    return dtw_dists
