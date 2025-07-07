@@ -4,6 +4,8 @@ import numpy as np
 from obspy.signal.trigger import classic_sta_lta
 from metrics.utils import iou
 from datetime import timedelta
+from datamod.loading_utils import remove_duplicate_traces, remove_overlaps
+from datamod.preproc_utils import preproc_stream
 from datamod.trigger_utils import trace_trigger_detections
 
 
@@ -115,3 +117,29 @@ def slta_compute_iou(flow_streams, gt, sw, lw, onset_thres, offset_thres):
         df = pd.concat(df).reset_index(drop=True)
         intersection, union, _ = iou(df, gt)
         return intersection[-1] / union[-1]
+
+
+def slta_detections_from_paths(paths, sw, lw, onset_thres, offset_thres, preproc=True):
+    res_tr = None
+    dtc = []
+
+    for p in paths:
+        st = obspy.read(p)
+        if preproc:
+            preproc_stream(st)
+        st = remove_duplicate_traces(st)
+        st = remove_overlaps(st)
+
+        new_dtc, res_tr, _ = slta_stream_detections(
+            res_tr, st, sw, lw, onset_thres, offset_thres
+        )
+
+        if len(new_dtc) > 0:
+            dtc.append(new_dtc)
+
+        print(p, end=" \r")
+
+    dtc = pd.concat(dtc).reset_index(drop=True)
+    reorder = np.flip(np.argsort(dtc["scores"]))
+
+    return dtc.iloc[reorder, :].reset_index(drop=True)
