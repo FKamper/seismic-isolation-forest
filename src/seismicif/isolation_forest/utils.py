@@ -2,8 +2,8 @@ import obspy
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import IsolationForest as IF
-from datamod.preproc_utils import preproc_stream, normalize_stream
-from datamod.loading_utils import (
+from seismicif.datamod.preproc_utils import preproc_stream, normalize_stream
+from seismicif.datamod.loading_utils import (
     sliding_windows_from_stream,
     remove_duplicate_traces,
     remove_overlaps,

@@ -2,11 +2,11 @@ import obspy
 import pandas as pd
 import numpy as np
 from obspy.signal.trigger import classic_sta_lta
-from metrics.utils import iou
+from seismicif.metrics.utils import iou
 from datetime import timedelta
-from datamod.loading_utils import remove_duplicate_traces, remove_overlaps
-from datamod.preproc_utils import preproc_stream
-from datamod.trigger_utils import trace_trigger_detections
+from seismicif.datamod.loading_utils import remove_duplicate_traces, remove_overlaps
+from seismicif.datamod.preproc_utils import preproc_stream
+from seismicif.datamod.trigger_utils import trace_trigger_detections
 
 
 def create_slta_trace(tr, sw, lw, station=""):
