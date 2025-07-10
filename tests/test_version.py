@@ -1,6 +1,6 @@
 import re
 
-from dtw import __version__
+from seismicif import __version__
 
 
 SEMVER_REGEX = re.compile(
