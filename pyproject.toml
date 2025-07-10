@@ -20,7 +20,7 @@ dependencies = [
 dynamic = ["version"]
 
 [tool.setuptools.dynamic]
-version = {attr = "dtw.__version__"}
+version = {attr = "seismicif.__version__"}
 
 [tool.ruff]
 extend-include = ["*.ipynb"]
