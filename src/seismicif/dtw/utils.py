@@ -1,6 +1,6 @@
 from fastdtw import fastdtw
 import numpy as np
-from datamod.loading_utils import extract_template, sliding_windows_from_trace
+from seismicif.datamod.loading_utils import extract_template, sliding_windows_from_trace
 from datetime import timedelta
 
 

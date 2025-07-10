@@ -2,7 +2,7 @@ import numpy as np
 import obspy
 import pandas as pd
 from datetime import timedelta, datetime
-from datamod.preproc_utils import preproc_stream
+from seismicif.datamod.preproc_utils import preproc_stream
 
 
 def sliding_windows_from_trace(inp, window_size=10000, stride=5000):
