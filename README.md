@@ -1,18 +1,7 @@
-# Project
+# Seismic Isolation Forest
 
-This project is made using [this template](https://github.com/sdsc-innovation/cookiecutter-python).
-Next steps include:
-
- - [x] Create project from the Cookiecutter template.
- - [ ] Create a virtual environment to work in an isolated Python installation.
- - [ ] Install [pre-commit](https://pre-commit.com/) hooks.
- - [ ] Keep either `.gitlab-ci.yml` or `.github`, according to your Git hosting platform.
- - [ ] Update `authors` and `description`, in `pyproject.toml`.
- - [ ] `requirements.txt` should contain the *exact* (a.k.a. pinned) versions of the dependencies used development, including tools. However, do not include indirect dependencies.
- - [ ] Add installation dependencies in `pyproject.toml`, with permissive version constraints.
- - [ ] Add a `LICENSE` file, if applicable. This is *highly recommended* if the project is open source.
- - [ ] Add a [`CITATION.cff`](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-citation-files), to ease citation of your work.
- - [ ] Replace this `README.md` with a proper one. Among others, it must explain the overall context, the installation instructions, a quick start guide, and a repository structure description.
+This repository contains code for applying the isolation forest trigger to search for mass movements in seismic data, the idea being that mass movements will likely manifest as a significant anomaly in the seismic waveforms. To discriminate between anomalies caused by mass movements and other sources, such as anthropogenic noise and earthquakes, we provide
+code for measuring dissimilarity between segments of the seismic waveforms using dynamic time warping (DTW).  Additionally, we provide code for comparing the classical sta-lta trigger to its isolation forest counterpart.
 
 
 ## Installation
@@ -35,23 +24,13 @@ Alternatively, if you are using an existing environment, you can install the mod
 pip install -e .
 ```
 
+## Quick Start
 
-## Development tools
 
-In order to use [pre-commit](https://pre-commit.com/) hooks, they need to be registered:
+## Repository Structure
 
-```
-pre-commit install
-```
-
-It is a good practice to manually invoke hooks after installation, just in case:
-
-```
-pre-commit run --all-files
-```
-
-Unit tests (using [pytest](https://pytest.org/)) are not executed as a pre-commit hook, to keep the overhead to a minimum. Instead, a CI/CD pipeline is configured to run tests after each commit. You can also execute them locally, manually:
-
-```
-pytest
-```
+* /catalogues - contains debris-flow catalogues for the Illgraben seismic network
+* /data - used to store seismic waveforms. Structure should be /data/network/year/station/channel
+* /notebooks - notebooks for lightweight illustration of source code
+* /output - storage for outputs generated
+* /src - core codebase
