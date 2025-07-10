@@ -23,6 +23,7 @@ dynamic = ["version"]
 version = {attr = "seismicif.__version__"}
 
 [tool.ruff]
+exclude = ["scripts/"]
 extend-include = ["*.ipynb"]
 target-version = "py310"
 line-length = 88
