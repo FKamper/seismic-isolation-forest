@@ -22,21 +22,21 @@ def parse_args():
         "--station",
         type=str,
         required=True,
-        help="Target station for calibration.",
+        help="Target station for deployment",
     )
 
     parser.add_argument(
         "--start",
         type=int,
         required=True,
-        help="Start year of calibration period.",
+        help="Start year of deployment.",
     )
 
     parser.add_argument(
             "--stop",
             type=int,
             required=True,
-            help="End of calibration period.",
+            help="End year of deployment.",
         )
 
     parser.add_argument(
