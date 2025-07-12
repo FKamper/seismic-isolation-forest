@@ -210,3 +210,18 @@ def find_paths(network, station, channel, start=2018, stop=2020):
     paths = np.concatenate(paths)
 
     return paths
+
+
+def extract_split_flows(df, station, start, stop):
+    start = obspy.UTCDateTime(f"{start}-01-01")
+    stop = obspy.UTCDateTime(f"{stop}-12-31T23:59:59.999999")
+
+    df = df[df["station"] == station].reset_index(drop=True)
+    df = df[(df["start"] > start) & (df["stop"] < stop)].reset_index(drop=True)
+
+    high_conf_flows = df[df["confidence"] == "high"].reset_index(drop=True)
+    lower_conf_flows = df[
+        (df["confidence"] == "low") | (df["confidence"] == "med")
+    ].reset_index(drop=True)
+
+    return lower_conf_flows, high_conf_flows

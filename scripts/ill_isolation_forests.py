@@ -3,18 +3,23 @@ import numpy as np
 import pandas as pd
 import obspy
 from joblib import dump, load
-from seismicif.datamod.loading_utils import find_paths
-from seismicif.isolation_forest import train_if, compute_scores
-
+import json
+from seismicif.datamod.loading_utils import find_paths, preproc_flow_annotations, extract_split_flows
+from seismicif.datamod.trigger_utils import stream_trigger_detections
+from seismicif.isolation_forest import train_if, compute_scores, create_if_stream
+from seismicif.metrics import iou
 
 stations = ["ILL11","ILL12","ILL13","ILL14","ILL15","ILL16","ILL17","ILL18"]
 tr_start, tr_stop, te_start, te_stop = 2018, 2020, 2021, 2022
+onset_grid = np.array([0.55, 0.60, 0.65, 0.70])
+offset_grid = np.array([0.50, 0.55, 0.60, 0.65])
+network = "XP"
 
 for station in stations:
     channel = "EHZ.D"
     if station == "ILL11": channel = "HHZ.D"
 
-    tr_paths, te_paths = find_paths("XP",station, channel, tr_start, tr_stop), find_paths("XP",station, channel, te_start, te_stop)
+    tr_paths, te_paths = find_paths(network,station, channel, tr_start, tr_stop), find_paths("XP",station, channel, te_start, te_stop)
 
     print(f"{station}: Training IF")
     try:
@@ -35,5 +40,59 @@ for station in stations:
         scores_df = compute_scores(np.concatenate([tr_paths, te_paths]), if_mod)
         scores_df.to_csv(f"../output/if_scores/{station}.csv")
     print(f"{station}: Anomaly Scores Computed")
+
+    print(f"{station}: Calibrating and Deploying Trigger")
+
+    flows = preproc_flow_annotations(pd.read_csv("../catalogs/initial_catalog.csv",index_col=0))
+    lower_conf_flows, high_conf_flows = extract_split_flows(flows,station,tr_start,tr_stop)
+
+    if_st = create_if_stream(scores_df, station=station, sr=0.02, network=network)
+    st = obspy.Stream()
+    for i in range(high_conf_flows.shape[0]):
+        dt = high_conf_flows["start"].iloc[i]
+        start = obspy.UTCDateTime(f"{dt.date}T00:00:00")
+        dt = high_conf_flows["stop"].iloc[i]
+        end = obspy.UTCDateTime(f"{dt.date}T23:59:59.999999")
+
+        st += if_st.copy().trim(start, end)
+
+    iou_table = np.zeros([len(onset_grid), len(offset_grid)])
+    for i in range(onset_grid.shape[0]):
+        for j in range(offset_grid.shape[0]):
+            if onset_grid[i] < offset_grid[j]:
+                continue
+
+            segments = stream_trigger_detections(st, onset_grid[i], offset_grid[j])
+            inter, union, _ = iou(segments, high_conf_flows)
+            iou_table[i, j] = inter[-1] / union[-1]
+
+    max_idx = np.unravel_index(np.argmax(iou_table), iou_table.shape)
+    onset_thres, offset_thres = onset_grid[max_idx[0]], offset_grid[max_idx[1]]
+
+    output_dict = {"station":station,"onset_thres":onset_thres,"offset_thres":offset_thres}
+    filename = "../output/if_segments/trigger_params.json"
+
+    if os.path.exists(filename) and os.path.getsize(filename) > 0:
+        with open(filename, "r") as f:
+            data = json.load(f)
+    else:
+        data = []
+
+    data.append(output_dict)
+
+    with open(filename, "w") as f:
+        json.dump(data, f, indent=4)
+
+    if_segments = stream_trigger_detections(if_st, onset_thres, offset_thres)
+    if_segments.to_csv(f"../output/if_segments/{station}.csv")
+
+    print(f"{station}: Trigger Calibrated and Deployed")
+
+
+
+
+
+
+
 
     break
