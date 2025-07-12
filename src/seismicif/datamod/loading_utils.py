@@ -1,6 +1,9 @@
 import numpy as np
 import obspy
 import pandas as pd
+import subprocess
+import os
+from pathlib import Path
 from datetime import timedelta, datetime
 from seismicif.datamod.preproc_utils import preproc_stream
 
@@ -178,3 +181,32 @@ def extract_template(t0, t1, if_mod, paths, window_size=10000, stride=5000):
     tem = X[np.argmax(if_scores), :]
 
     return (tem - np.mean(tem)) / np.std(tem)
+
+
+def get_git_root() -> Path:
+    try:
+        output = subprocess.check_output(
+            ["git", "rev-parse", "--show-toplevel"], stderr=subprocess.DEVNULL
+        )
+        return Path(output.decode("utf-8").strip())
+    except subprocess.CalledProcessError:
+        raise RuntimeError("Not inside a Git repository")
+
+
+def get_data_subpath(*subpath_parts: str) -> Path:
+    git_root = get_git_root()
+    data_path = git_root / "data" / Path(*subpath_parts)
+    return data_path
+
+
+def find_paths(network, station, channel, start=2018, stop=2020):
+    paths = []
+    for i in range(start, stop + 1):
+        path = get_data_subpath(network, str(i), station, channel)
+        stream_paths = [path / f for f in os.listdir(path) if not f.startswith("._")]
+        paths.append(
+            np.array(sorted(stream_paths, key=lambda f: int(str(f).rsplit(".", 1)[-1])))
+        )
+    paths = np.concatenate(paths)
+
+    return paths
