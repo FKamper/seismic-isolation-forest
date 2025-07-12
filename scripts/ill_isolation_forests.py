@@ -14,7 +14,7 @@ for station in stations:
     channel = "EHZ.D"
     if station == "ILL11": channel = "HHZ.D"
 
-    tr_paths, te_paths = find_paths("XP",station,channel, tr_start, tr_stop), find_paths("XP",station,channel, te_start, te_stop)
+    tr_paths, te_paths = find_paths("XP",station, channel, tr_start, tr_stop), find_paths("XP",station, channel, te_start, te_stop)
 
     print(f"{station}: Training IF")
     try:
