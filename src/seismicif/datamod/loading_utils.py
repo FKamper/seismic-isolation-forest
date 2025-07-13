@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from datetime import timedelta, datetime
 from seismicif.datamod.preproc_utils import preproc_stream
+from seismicif.metrics import iou
 
 
 def sliding_windows_from_trace(inp, window_size=10000, stride=5000):
@@ -225,3 +226,11 @@ def extract_split_flows(df, station, start, stop):
     ].reset_index(drop=True)
 
     return lower_conf_flows, high_conf_flows
+
+
+def extract_valid_segments(segments, lower_conf_flows, high_conf_flows):
+    intersections, _, _ = iou(segments, lower_conf_flows)
+    non_lower_conf = np.append(intersections[0], np.diff(intersections)) == 0
+    intersections, _, _ = iou(segments, high_conf_flows)
+    high_conf = np.append(intersections[0], np.diff(intersections)) > 0
+    return segments[non_lower_conf | high_conf].reset_index(drop=True)

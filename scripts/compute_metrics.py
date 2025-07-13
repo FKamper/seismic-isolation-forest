@@ -1,95 +1,40 @@
-import argparse
 import os
 import numpy as np
 import pandas as pd
 import obspy
-import json
-import sys
-
 from joblib import dump, load
-from seismicif.datamod.loading_utils import preproc_flow_annotations
-from seismicif.isolation_forest import create_if_stream
+import json
+from seismicif.datamod.loading_utils import find_paths, preproc_flow_annotations, extract_split_flows, extract_valid_segments
 from seismicif.datamod.trigger_utils import stream_trigger_detections
+from seismicif.isolation_forest import train_if, compute_scores, create_if_stream
 from seismicif.metrics import iou, compute_statistics
 
-def parse_args():
-    parser = argparse.ArgumentParser(
-        description="Calibrate thresholds and produce detections."
-    )
-    parser.add_argument(
-        "--network", type=str, required=True, help="Network where station is located."
-    )
-    parser.add_argument(
-        "--station",
-        type=str,
-        required=True,
-        help="Target station.",
-    )
+stations = ["ILL11","ILL12","ILL13","ILL14","ILL15","ILL16","ILL17","ILL18"]
+tr_start, tr_stop, te_start, te_stop = 2018, 2020, 2021, 2022
+onset_grid = np.array([0.55, 0.60, 0.65, 0.70])
+offset_grid = np.array([0.50, 0.55, 0.60, 0.65])
+network = "XP"
 
-    parser.add_argument(
-        "--tr_start",
-        type=int,
-        required=True,
-        help="Training start year.",
-    )
+tr_start_UTC = obspy.UTCDateTime(f"{tr_start}-01-01")
+tr_stop_UTC = obspy.UTCDateTime(f"{tr_stop}-12-31")
+te_start_UTC = obspy.UTCDateTime(f"{te_start}-01-01")
+te_stop_UTC = obspy.UTCDateTime(f"{te_stop}-12-31")
 
-    parser.add_argument(
-        "--tr_stop",
-        type=int,
-        required=True,
-        help="Training end year.",
-        )
+for station in stations:
+    flows = preproc_flow_annotations(pd.read_csv("../catalogs/flow_catalog.csv",index_col=0))
+    flows = flows[["2022-09-08" not in str(i) for i in flows["start"]]]
 
-    parser.add_argument(
-        "--te_start",
-        type=int,
-        required=True,
-        help="Testing start year.",
-    )
+    tr_lower_conf_flows, tr_high_conf_flows = extract_split_flows(flows,station,tr_start,tr_stop)
+    te_lower_conf_flows, te_high_conf_flows = extract_split_flows(flows,station,te_start,te_stop)
 
-    parser.add_argument(
-        "--te_stop",
-        type=int,
-        required=True,
-        help="Testing end year.",
-        )
+    if_detections = preproc_flow_annotations(pd.read_csv(f"../output/if_detections/{station}.csv",index_col=0))
+    tr_if_detections =  if_detections[(if_detections["start"] >  tr_start_UTC) & (if_detections["stop"] < tr_stop_UTC)].reset_index(drop=True)
+    te_if_detections =  if_detections[(if_detections["start"] >  te_start_UTC) & (if_detections["stop"] < te_stop_UTC)].reset_index(drop=True)
 
-    return parser.parse_args()
+    print(te_if_detections)
 
-def main():
-    args = parse_args()
+    valid_detections = extract_valid_segments(tr_if_detections,tr_lower_conf_flows,tr_high_conf_flows)
+    print(compute_statistics(valid_detections,tr_high_conf_flows))
 
-    tr_start = obspy.UTCDateTime(f"{args.tr_start}-01-01")
-    tr_end = obspy.UTCDateTime(f"{args.tr_stop}-12-31")
-
-    te_start = obspy.UTCDateTime(f"{args.te_start}-01-01")
-    te_end = obspy.UTCDateTime(f"{args.te_stop}-12-31")
-
-    tr_detections = pd.read_csv(f"../output/if_detections/tr_{args.station}.csv",index_col=0)
-    te_detections = pd.read_csv(f"../output/if_detections/te_{args.station}.csv",index_col=0)
-
-    flows = preproc_flow_annotations(pd.read_csv("../catalogs/flow_catalog.csv"))
-    flows = flows[flows["station"] == args.station].reset_index(drop=True)
-    tr_flows = flows[(flows["start"] > tr_start) & (flows["stop"] < tr_end)].reset_index(drop=True)
-    te_flows = flows[(flows["start"] > te_start) & (flows["stop"] < te_end)].reset_index(drop=True)
-    tr_high_conf_flows = tr_flows[tr_flows["confidence"] == 1].reset_index(drop=True)
-    tr_lower_conf_flows = tr_flows[tr_flows["confidence"] != 1].reset_index(drop=True)
-    te_high_conf_flows = te_flows[te_flows["confidence"] == 1].reset_index(drop=True)
-    te_lower_conf_flows = te_flows[te_flows["confidence"] != 1].reset_index(drop=True)
-
-    intersections, _, _ = iou(tr_detections, tr_lower_conf_flows)
-    non_lower_conf = np.append(intersections[0], np.diff(intersections)) == 0
-    intersections, _, _ = iou(tr_detections, tr_high_conf_flows)
-    high_conf = np.append(intersections[0], np.diff(intersections)) > 0
-    valid_detections = tr_detections[non_lower_conf | high_conf].reset_index(drop=True)
-    print("Training:",compute_statistics(valid_detections, tr_high_conf_flows))
-
-    intersections, _, _ = iou(te_detections, te_lower_conf_flows)
-    non_lower_conf = np.append(intersections[0], np.diff(intersections)) == 0
-    intersections, _, _ = iou(te_detections, te_high_conf_flows)
-    high_conf = np.append(intersections[0], np.diff(intersections)) > 0
-    valid_detections = te_detections[non_lower_conf | high_conf].reset_index(drop=True)
-    print("Testing:",compute_statistics(valid_detections, te_high_conf_flows))
-
-if __name__ == "__main__":
-    main()
+    valid_detections = extract_valid_segments(te_if_detections,te_lower_conf_flows,te_high_conf_flows)
+    print(compute_statistics(valid_detections,te_high_conf_flows))

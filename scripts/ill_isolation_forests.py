@@ -4,7 +4,7 @@ import pandas as pd
 import obspy
 from joblib import dump, load
 import json
-from seismicif.datamod.loading_utils import find_paths, preproc_flow_annotations, extract_split_flows
+from seismicif.datamod.loading_utils import find_paths, preproc_flow_annotations, extract_split_flows, extract_valid_segments
 from seismicif.datamod.trigger_utils import stream_trigger_detections
 from seismicif.isolation_forest import train_if, compute_scores, create_if_stream
 from seismicif.metrics import iou, est_thresholds
@@ -108,12 +108,7 @@ for station in stations:
         tr_stop_UTC = obspy.UTCDateTime(f"{tr_stop}-12-31")
         tr_segments =  if_segments[(if_segments["start"] >  tr_start_UTC) & (if_segments["stop"] < tr_stop_UTC)].reset_index(drop=True)
 
-        intersections, _, _ = iou(tr_segments, lower_conf_flows)
-        non_lower_conf = np.append(intersections[0], np.diff(intersections)) == 0
-        intersections, _, _ = iou(tr_segments, high_conf_flows)
-        high_conf = np.append(intersections[0], np.diff(intersections)) > 0
-        valid_segments = tr_segments[non_lower_conf | high_conf].reset_index(drop=True)
-
+        valid_segments = extract_valid_segments(tr_segments,lower_conf_flows,high_conf_flows)
         _, min_len, score_thres = est_thresholds(valid_segments, high_conf_flows)
 
         filename = "../output/if_detections/threshold_params.json"
@@ -140,5 +135,3 @@ for station in stations:
         detections.to_csv(f"../output/if_detections/{station}.csv")
 
     print(f"{station}: Detections Generated")
-
-    break

@@ -52,7 +52,7 @@
 50,ILL16,EHZ,2019-06-11 00:20:44+00:00,2019-06-11 00:34:54+00:00,low,"This is likely torrential activity, but I could not tell without looking at the other stations, as well."
 51,ILL12,EHZ,2019-06-20 09:18:20+00:00,2019-06-20 10:25:00+00:00,high,
 52,ILL16,EHZ,2019-06-20 08:53:20+00:00,2019-06-20 09:12:30+00:00,high,
-53,ILL17,EHZ,2019-06-20T08:59:10+00:00,2019-06-20 09:14:10+00:00,high,odd signal present at ILL13
+53,ILL17,EHZ,2019-06-20 08:59:10+00:00,2019-06-20 09:14:10+00:00,high,odd signal present at ILL13
 54,ILL18,EHZ,2019-06-20 08:53:20+00:00,2019-06-20 09:34:10+00:00,high,
 55,ILL13,EHZ,2019-06-20 10:15:20+00:00,2019-06-20 11:25:00+00:00,high,
 56,ILL14,EHZ,2019-06-20 08:45:00+00:00,2019-06-20 09:45:00+00:00,high,
@@ -237,7 +237,7 @@
 235,ILL14,EHZ,2021-05-21 22:40:00+00:00,2021-05-22 00:38:00+00:00,high,
 236,ILL17,EHZ,2021-05-21 22:40:00+00:00,2021-05-22 00:38:00+00:00,high,
 237,ILL18,EHZ,2021-05-21 22:43:00+00:00,2021-05-22 00:20:00+00:00,high,
-238,ILL14,EHZ,2021-05-23 00:07:57+00:00,2021-05-23 00:12:57+00:00,low,"Likely strong activity in the upper catchment, although no debris flow made it to the Rhone Vally."
+238,ILL14,EHZ,2021-05-23 00:07:57+00:00,2021-05-23 00:12:57+00:00,low,"Likely strong activity in the upper catchment, although no debris flow made it to the Rhone Vally.	"
 239,ILL14,EHZ,2021-05-23 00:17:57+00:00,2021-05-23 00:21:17+00:00,low,"Likely strong activity in the upper catchment, although no debris flow made it to the Rhone Vally."
 240,ILL14,EHZ,2021-05-23 01:04:37+00:00,2021-05-23 01:11:17+00:00,low,"Likely strong activity in the upper catchment, although no debris flow made it to the Rhone Vally."
 241,ILL18,EHZ,2021-05-28 09:09:39+00:00,2021-05-28 10:01:18+00:00,low,"Possibly activity in the upper catchment, no debris flow made it to the Rhone Vally."
@@ -285,13 +285,13 @@
 283,ILL14,EHZ,2021-07-08 13:46:17+00:00,2021-07-08 14:22:57+00:00,low,
 284,ILL17,EHZ,2021-07-08 13:43:18+00:00,2021-07-08 14:33:18+00:00,low,
 285,ILL18,EHZ,2021-07-08 13:23:43+00:00,2021-07-08 14:29:33+00:00,med,
-286,ILL17,EHZ,2021-07-08 15:16:38+00:00,2021-07-08T15:49:08+00:00,low,
-287,ILL18,EHZ,2021-07-08 15:21:13+00:00,2021-07-08T15:50:23+00:00,med,
-288,ILL11,HHZ,2021-07-08T16:39:52+00:00,2021-07-08T18:58:12+00:00,high,
-289,ILL12,EHZ,2021-07-08T16:27:30+00:00,2021-07-08T18:12:30+00:00,high,
-290,ILL13,EHZ,2021-07-08T16:48:56+00:00,2021-07-08T17:51:26+00:00,high,
-291,ILL17,EHZ,2021-07-08T16:09:58+00:00,2021-07-08T17:19:08+00:00,low,
-292,ILL18,EHZ,2021-07-08T15:56:13+00:00,2021-07-08T17:27:03+00:00,med,
+286,ILL17,EHZ,2021-07-08 15:16:38+00:00,2021-07-08 15:49:08+00:00,low,
+287,ILL18,EHZ,2021-07-08 15:21:13+00:00,2021-07-08 15:50:23+00:00,med,
+288,ILL11,HHZ,2021-07-08 16:39:52+00:00,2021-07-08 18:58:12+00:00,high,
+289,ILL12,EHZ,2021-07-08 16:27:30+00:00,2021-07-08 18:12:30+00:00,high,
+290,ILL13,EHZ,2021-07-08 16:48:56+00:00,2021-07-08 17:51:26+00:00,high,
+291,ILL17,EHZ,2021-07-08 16:09:58+00:00,2021-07-08 17:19:08+00:00,low,
+292,ILL18,EHZ,2021-07-08 15:56:13+00:00,2021-07-08 17:27:03+00:00,med,
 293,ILL11,HHZ,2021-07-13 06:35:00+00:00,2021-07-13 09:50:00+00:00,high,
 294,ILL12,EHZ,2021-07-13 05:45:00+00:00,2021-07-13 07:45:00+00:00,high,
 295,ILL13,EHZ,2021-07-13 06:31:00+00:00,2021-07-13 08:51:00+00:00,high,
@@ -308,14 +308,14 @@
 306,ILL16,EHZ,2021-07-13 14:55:00+00:00,2021-07-13 17:21:00+00:00,high,
 307,ILL17,EHZ,2021-07-13 14:55:00+00:00,2021-07-13 17:22:00+00:00,high,
 308,ILL18,EHZ,2021-07-13 14:57:00+00:00,2021-07-13 17:28:00+00:00,high,
-309,ILL14,EHZ,2021-07-14T04:26:17+00:00,2021-07-14T04:55:27+00:00,low,Probably a rockfall in the upper catchment. Very clear signal.
-310,ILL14,EHZ,2021-07-14T05:02:57+00:00,2021-07-14T05:06:17+00:00,low,Probably a rockfall in the upper catchment.
-311,ILL14,EHZ,2021-07-14T08:17:07+00:00,2021-07-14T08:22:07+00:00,low,Probably a rockfall in the upper catchment.
-312,ILL14,EHZ,2021-07-14T08:36:17+00:00,2021-07-14T08:39:37+00:00,low,Probably a rockfall in the upper catchment.
-313,ILL14,EHZ,2021-07-14T08:45:27+00:00,2021-07-14T08:49:37+00:00,low,Probably a rockfall in the upper catchment.
-314,ILL14,EHZ,2021-07-14T09:14:37+00:00,2021-07-14T09:22:57+00:00,low,Probably a rockfall in the upper catchment.
-315,ILL14,EHZ,2021-07-14T20:07:07+00:00,2021-07-14T20:19:37+00:00,low,Probably a rockfall in the upper catchment.
-316,ILL16,EHZ,2021-07-14T20:12:29+00:00,2021-07-14T20:18:19+00:00,low,Probably a rockfall in the upper catchment. Very clear signal.
+309,ILL14,EHZ,2021-07-14 04:26:17+00:00,2021-07-14 04:55:27+00:00,low,Probably a rockfall in the upper catchment. Very clear signal.
+310,ILL14,EHZ,2021-07-14 05:02:57+00:00,2021-07-14 05:06:17+00:00,low,Probably a rockfall in the upper catchment.
+311,ILL14,EHZ,2021-07-14 08:17:07+00:00,2021-07-14 08:22:07+00:00,low,Probably a rockfall in the upper catchment.
+312,ILL14,EHZ,2021-07-14 08:36:17+00:00,2021-07-14 08:39:37+00:00,low,Probably a rockfall in the upper catchment.
+313,ILL14,EHZ,2021-07-14 08:45:27+00:00,2021-07-14 08:49:37+00:00,low,Probably a rockfall in the upper catchment.
+314,ILL14,EHZ,2021-07-14 09:14:37+00:00,2021-07-14 09:22:57+00:00,low,Probably a rockfall in the upper catchment.
+315,ILL14,EHZ,2021-07-14 20:07:07+00:00,2021-07-14 20:19:37+00:00,low,Probably a rockfall in the upper catchment.
+316,ILL16,EHZ,2021-07-14 20:12:29+00:00,2021-07-14 20:18:19+00:00,low,Probably a rockfall in the upper catchment. Very clear signal.
 317,ILL11,HHZ,2021-07-16 03:58:00+00:00,2021-07-16 05:03:00+00:00,high,
 318,ILL12,EHZ,2021-07-16 03:43:00+00:00,2021-07-16 04:54:00+00:00,high,
 319,ILL13,EHZ,2021-07-16 03:53:00+00:00,2021-07-16 05:00:00+00:00,high,
@@ -326,11 +326,11 @@
 324,ILL18,EHZ,2021-07-16 03:36:00+00:00,2021-07-16 04:41:00+00:00,high,
 325,ILL18,EHZ,2021-07-28 06:00:25+00:00,2021-07-28 07:33:55+00:00,low,"Could be upper catchment slope activity, but rather weak."
 326,ILL14,EHZ,2021-07-28 06:40:01+00:00,2021-07-28 07:15:01+00:00,low,"Could be upper catchment slope activity, but rather weak."
-327,ILL18,EHZ,2021-07-31 21:08:09+00:00,2021-07-31T22:21:59+00:00,low,Could be a small debris flow or upper catchment activity that did not make it to the Rhone valley.
-328,ILL18,EHZ,2021-07-31 23:04:34+00:00,2021-07-31T23:39:34+00:00,low,Could be a small debris flow or upper catchment activity that did not make it to the Rhone valley.
-329,ILL14,EHZ,2021-08-01T07:36:41+00:00,2021-08-01T07:43:21+00:00,low,Perhaps rockfall in upper catchment.
-330,ILL17,EHZ,2021-08-03T08:59:08+00:00,2021-08-03T09:05:48+00:00,low,Perhaps rockfall in upper catchment.
-331,ILL14,EHZ,2021-08-04T14:23:21+00:00,2021-08-04T14:26:41+00:00,low,Perhaps rockfall in upper catchment.
+327,ILL18,EHZ,2021-07-31 21:08:09+00:00,2021-07-31 22:21:59+00:00,low,Could be a small debris flow or upper catchment activity that did not make it to the Rhone valley.
+328,ILL18,EHZ,2021-07-31 23:04:34+00:00,2021-07-31 23:39:34+00:00,low,Could be a small debris flow or upper catchment activity that did not make it to the Rhone valley.
+329,ILL14,EHZ,2021-08-01 07:36:41+00:00,2021-08-01 07:43:21+00:00,low,Perhaps rockfall in upper catchment.
+330,ILL17,EHZ,2021-08-03 08:59:08+00:00,2021-08-03 09:05:48+00:00,low,Perhaps rockfall in upper catchment.
+331,ILL14,EHZ,2021-08-04 14:23:21+00:00,2021-08-04 14:26:41+00:00,low,Perhaps rockfall in upper catchment.
 332,ILL11,HHZ,2021-08-07 14:32:00+00:00,2021-08-07 15:53:00+00:00,high,
 333,ILL13,EHZ,2021-08-07 14:23:00+00:00,2021-08-07 15:33:00+00:00,high,
 334,ILL14,EHZ,2021-08-07 14:12:00+00:00,2021-08-07 15:26:00+00:00,high,
@@ -340,7 +340,7 @@
 338,ILL18,EHZ,2021-08-07 14:13:00+00:00,2021-08-07 15:14:00+00:00,high,
 339,ILL18,EHZ,2021-08-12 21:53:12+00:00,2021-08-12 22:07:22+00:00,low,Perhaps some activity in upper catchment. But small.
 340,ILL18,EHZ,2021-08-15 23:53:27+00:00,2021-08-16 00:37:21+00:00,low,"Probably activity in upper catchment, perhaps even a debris flow that did not make it to the Rhone valley."
-341,ILL18,EHZ,2021-09-10T17:52:11+00:00,2021-09-10 18:40:31+00:00,low,Activity in upper catchment.
+341,ILL18,EHZ,2021-09-10 17:52:11+00:00,2021-09-10 18:40:31+00:00,low,Activity in upper catchment.
 342,ILL11,HHZ,2021-09-19 06:38:00+00:00,2021-09-19 07:51:00+00:00,high,
 343,ILL12,EHZ,2021-09-19 06:23:00+00:00,2021-09-19 07:28:00+00:00,high,
 344,ILL13,EHZ,2021-09-19 06:22:00+00:00,2021-09-19 07:36:00+00:00,high,
@@ -356,23 +356,23 @@
 354,ILL17,EHZ,2021-09-19 08:24:08+00:00,2021-09-19 09:42:28+00:00,med,
 355,ILL17,EHZ,2021-09-30 09:24:58+00:00,2021-09-30 09:32:28+00:00,low,Seems like to strong signals of a rockfall in the upper catchment.
 356,ILL18,EHZ,2022-04-06 06:46:38+00:00,2022-04-06 07:36:32+00:00,low,"Could be upper catchment activity, but highly uncertain (no other station available and very weak)."
-357,ILL14,EHZ,2022-05-12T08:05:06+00:00,2022-05-12T08:09:16+00:00,low,Likely upper catchment activity.
-358,ILL14,EHZ,2022-05-12T11:16:46+00:00,2022-05-12T11:25:56+00:00,low,"Very weak signals, perhaps upper catchment activity."
-359,ILL14,EHZ,2022-05-14T07:06:46+00:00,2022-05-14T07:10:06+00:00,low,Likely upper catchment activity.
-360,ILL17,EHZ,2022-05-14T12:02:42+00:00,2022-05-14T12:09:22+00:00,low,"Clear signal, likely upper catchment activity."
-361,ILL17,EHZ,2022-05-15T17:21:52+00:00,2022-05-15T17:51:52+00:00,low,Thunder signal mixed with some upper catchment activity.
-362,ILL14,EHZ,2022-05-16T13:09:16+00:00,2022-05-16T13:13:26+00:00,low,Perhaps some upper catchment activity.
-363,ILL14,EHZ,2022-05-16T13:29:16+00:00,2022-05-16T13:35:06+00:00,low,Perhaps some upper catchment activity.
-364,ILL18,EHZ,2022-05-17T13:55:15+00:00,2022-05-17T14:11:05+00:00,low,"Could perhaps be upper catchment activity, but very unclear."
-365,ILL18,EHZ,2022-05-17T15:59:25+00:00,2022-05-17T16:15:15+00:00,low,"Could perhaps be upper catchment activity, but very unclear."
-366,ILL14,EHZ,2022-05-17T18:30:06+00:00,2022-05-17T18:35:06+00:00,low,"Could perhaps be upper catchment activity, but very unclear."
-367,ILL18,EHZ,2022-05-17T19:29:25+00:00,2022-05-17T19:45:15+00:00,low,"Could perhaps be upper catchment activity, but very unclear."
-368,ILL18,EHZ,2022-05-19T14:41:05+00:00,2022-05-19T14:56:05+00:00,low,"Could perhaps be upper catchment activity, but very unclear."
-369,ILL17,EHZ,2022-06-01T11:15:12+00:00,2022-06-01T11:25:12+00:00,low,Likely big rockfall in upper catchment.
-370,ILL14,EHZ,2022-06-02T00:11:46+00:00,2022-06-02T00:15:56+00:00,low,"Could perhaps be upper catchment activity, but very unclear."
-371,ILL17,EHZ,2022-06-02T01:09:22+00:00,2022-06-02T01:34:22+00:00,low,"Could perhaps be upper catchment activity, but very unclear."
-372,ILL12,EHZ,2022-06-02T01:34:12+00:00,2022-06-02T02:05:52+00:00,low,Looks like something coming down from Sagenschleif. But suspicious: nothing on other stations.
-373,ILL11,HHZ,2022-06-02T02:59:08+00:00,2022-06-02T03:25:48+00:00,low,"Could be some discharge, but not very clear."
+357,ILL14,EHZ,2022-05-12 08:05:06+00:00,2022-05-12 08:09:16+00:00,low,Likely upper catchment activity.
+358,ILL14,EHZ,2022-05-12 11:16:46+00:00,2022-05-12 11:25:56+00:00,low,"Very weak signals, perhaps upper catchment activity."
+359,ILL14,EHZ,2022-05-14 07:06:46+00:00,2022-05-14 07:10:06+00:00,low,Likely upper catchment activity.
+360,ILL17,EHZ,2022-05-14 12:02:42+00:00,2022-05-14 12:09:22+00:00,low,"Clear signal, likely upper catchment activity."
+361,ILL17,EHZ,2022-05-15 17:21:52+00:00,2022-05-15 17:51:52+00:00,low,Thunder signal mixed with some upper catchment activity.
+362,ILL14,EHZ,2022-05-16 13:09:16+00:00,2022-05-16 13:13:26+00:00,low,Perhaps some upper catchment activity.
+363,ILL14,EHZ,2022-05-16 13:29:16+00:00,2022-05-16 13:35:06+00:00,low,Perhaps some upper catchment activity.
+364,ILL18,EHZ,2022-05-17 13:55:15+00:00,2022-05-17 14:11:05+00:00,low,"Could perhaps be upper catchment activity, but very unclear."
+365,ILL18,EHZ,2022-05-17 15:59:25+00:00,2022-05-17 16:15:15+00:00,low,"Could perhaps be upper catchment activity, but very unclear."
+366,ILL14,EHZ,2022-05-17 18:30:06+00:00,2022-05-17 18:35:06+00:00,low,"Could perhaps be upper catchment activity, but very unclear."
+367,ILL18,EHZ,2022-05-17 19:29:25+00:00,2022-05-17 19:45:15+00:00,low,"Could perhaps be upper catchment activity, but very unclear."
+368,ILL18,EHZ,2022-05-19 14:41:05+00:00,2022-05-19 14:56:05+00:00,low,"Could perhaps be upper catchment activity, but very unclear."
+369,ILL17,EHZ,2022-06-01 11:15:12+00:00,2022-06-01 11:25:12+00:00,low,Likely big rockfall in upper catchment.
+370,ILL14,EHZ,2022-06-02 00:11:46+00:00,2022-06-02 00:15:56+00:00,low,"Could perhaps be upper catchment activity, but very unclear."
+371,ILL17,EHZ,2022-06-02 01:09:22+00:00,2022-06-02 01:34:22+00:00,low,"Could perhaps be upper catchment activity, but very unclear."
+372,ILL12,EHZ,2022-06-02 01:34:12+00:00,2022-06-02 02:05:52+00:00,low,Looks like something coming down from Sagenschleif. But suspicious: nothing on other stations.
+373,ILL11,HHZ,2022-06-02 02:59:08+00:00,2022-06-02 03:25:48+00:00,low,"Could be some discharge, but not very clear."
 374,ILL11,HHZ,2022-06-05 11:22:00+00:00,2022-06-05 12:29:00+00:00,high,
 375,ILL12,EHZ,2022-06-05 11:20:00+00:00,2022-06-05 11:57:00+00:00,high,
 376,ILL13,EHZ,2022-06-05 11:20:00+00:00,2022-06-05 12:27:00+00:00,high,
@@ -396,9 +396,9 @@
 394,ILL17,EHZ,2022-06-30 20:12:00+00:00,2022-06-30 21:16:00+00:00,high,
 395,ILL18,EHZ,2022-06-30 20:21:00+00:00,2022-06-30 21:16:00+00:00,high,
 396,ILL18,EHZ,2022-07-03 19:20:10+00:00,2022-07-03 20:47:22+00:00,low,"Could be rock falls, thunder strikes or other type of upper catchment activity; not clear."
-397,ILL17,EHZ,2022-07-04 05:11:02+00:00,2022-07-04T05:21:02+00:00,low,"Could perhaps be upper catchment activity, but rather unclear."
-398,ILL18,EHZ,2022-07-04 05:13:41+00:00,2022-07-04T05:38:41+00:00,low,"Clear signal, likely upper catchment activity, but only near ILL18."
-399,ILL18,EHZ,2022-07-04 19:07:01+00:00,2022-07-04T19:22:01+00:00,low,"Clear signal, likely upper catchment activity, but only near ILL18."
+397,ILL17,EHZ,2022-07-04 05:11:02+00:00,2022-07-04 05:21:02+00:00,low,"Could perhaps be upper catchment activity, but rather unclear.	"
+398,ILL18,EHZ,2022-07-04 05:13:41+00:00,2022-07-04 05:38:41+00:00,low,"Clear signal, likely upper catchment activity, but only near ILL18.	"
+399,ILL18,EHZ,2022-07-04 19:07:01+00:00,2022-07-04 19:22:01+00:00,low,"Clear signal, likely upper catchment activity, but only near ILL18.	"
 400,ILL11,HHZ,2022-07-04 21:48:00+00:00,2022-07-04 22:39:00+00:00,high,
 401,ILL12,EHZ,2022-07-04 21:41:00+00:00,2022-07-04 22:30:00+00:00,high,
 402,ILL13,EHZ,2022-07-04 21:47:00+00:00,2022-07-04 22:29:00+00:00,high,
@@ -407,7 +407,7 @@
 405,ILL16,EHZ,2022-07-04 21:39:00+00:00,2022-07-04 22:21:00+00:00,high,
 406,ILL17,EHZ,2022-07-04 21:40:00+00:00,2022-07-04 22:30:00+00:00,high,
 407,ILL18,EHZ,2022-07-04 21:40:00+00:00,2022-07-04 22:18:00+00:00,high,
-408,ILL17,EHZ,2022-07-07T05:45:00+00:00,2022-07-07 06:12:42+00:00,low,"Very unclear, perhaps upper catchment activity."
+408,ILL17,EHZ,2022-07-07 05:45:00+00:00,2022-07-07 06:12:42+00:00,low,"Very unclear, perhaps upper catchment activity."
 409,ILL12,EHZ,2022-09-08 00:45:00+00:00,2022-09-08 01:33:00+00:00,high,
 410,ILL13,EHZ,2022-09-08 00:46:00+00:00,2022-09-08 01:53:00+00:00,high,
 411,ILL14,EHZ,2022-09-08 00:37:00+00:00,2022-09-08 01:25:00+00:00,high,
