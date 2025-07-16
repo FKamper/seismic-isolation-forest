@@ -1,6 +1,7 @@
 import obspy
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 from sklearn.ensemble import IsolationForest as IF
 from seismicif.datamod.preproc_utils import preproc_stream, normalize_stream
 from seismicif.datamod.loading_utils import (
@@ -17,7 +18,7 @@ def train_if(stream_paths, norm=False, preproc=True, if_mod=None, max_val=np.inf
             n_estimators=0, max_features=1.0, warm_start=True, n_jobs=16, random_state=0
         )
 
-    for i in range(stream_paths.shape[0]):
+    for i in tqdm(range(stream_paths.shape[0])):
         st = obspy.read(stream_paths[i])
         if preproc:
             preproc_stream(st)
@@ -34,7 +35,7 @@ def train_if(stream_paths, norm=False, preproc=True, if_mod=None, max_val=np.inf
 
         if_mod.n_estimators = if_mod.n_estimators + 1
         if_mod.fit(X)
-        print(np.round(100 * (i / stream_paths.shape[0]), 2), "%", end=" \r")
+        # print(np.round(100 * (i / stream_paths.shape[0]), 2), "%", end=" \r")
 
     return if_mod
 
@@ -47,7 +48,7 @@ def compute_scores(
     stdevs = []
     res_tr = None
 
-    for i in range(stream_paths.shape[0]):
+    for i in tqdm(range(stream_paths.shape[0])):
         st = obspy.read(stream_paths[i])
         if preproc:
             preproc_stream(st)

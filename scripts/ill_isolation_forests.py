@@ -19,7 +19,7 @@ for station in stations:
     channel = "EHZ.D"
     if station == "ILL11": channel = "HHZ.D"
 
-    tr_paths, te_paths = find_paths(network,station, channel, tr_start, tr_stop), find_paths("XP",station, channel, te_start, te_stop)
+    tr_paths, te_paths = find_paths(network, station, channel, tr_start, tr_stop), find_paths("XP", station, channel, te_start, te_stop)
 
     print(f"{station}: Training IF")
 
@@ -42,6 +42,7 @@ for station in stations:
     except (FileNotFoundError, OSError):
         scores_df = compute_scores(np.concatenate([tr_paths, te_paths]), if_mod)
         scores_df.to_csv(f"../output/if_scores/{station}.csv")
+
 
     print(f"{station}: Anomaly Scores Computed")
 
@@ -105,7 +106,7 @@ for station in stations:
         flows = preproc_flow_annotations(pd.read_csv("../catalogs/calibration_catalog.csv",index_col=0))
         lower_conf_flows, high_conf_flows = extract_split_flows(flows,station,tr_start,tr_stop)
         tr_start_UTC = obspy.UTCDateTime(f"{tr_start}-01-01")
-        tr_stop_UTC = obspy.UTCDateTime(f"{tr_stop}-12-31")
+        tr_stop_UTC = obspy.UTCDateTime(f"{tr_stop}-12-31T23:59:59.999999")
         tr_segments =  if_segments[(if_segments["start"] >  tr_start_UTC) & (if_segments["stop"] < tr_stop_UTC)].reset_index(drop=True)
 
         valid_segments = extract_valid_segments(tr_segments,lower_conf_flows,high_conf_flows)
@@ -135,3 +136,5 @@ for station in stations:
         detections.to_csv(f"../output/if_detections/{station}.csv")
 
     print(f"{station}: Detections Generated")
+
+    break

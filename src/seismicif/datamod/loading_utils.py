@@ -143,7 +143,7 @@ def date_to_year_day(date_str):
 def find_date_in_strings(strings, date_str):
     """Finds strings that contain the specified date."""
     target = date_to_year_day(date_str)
-    return [s for s in strings if target in s]
+    return [s for s in strings if target in str(s)]
 
 
 def read_segment(t0, t1, paths):

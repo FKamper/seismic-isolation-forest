@@ -11,14 +11,12 @@ from seismicif.metrics import iou, compute_statistics
 
 stations = ["ILL11","ILL12","ILL13","ILL14","ILL15","ILL16","ILL17","ILL18"]
 tr_start, tr_stop, te_start, te_stop = 2018, 2020, 2021, 2022
-onset_grid = np.array([0.55, 0.60, 0.65, 0.70])
-offset_grid = np.array([0.50, 0.55, 0.60, 0.65])
 network = "XP"
 
 tr_start_UTC = obspy.UTCDateTime(f"{tr_start}-01-01")
-tr_stop_UTC = obspy.UTCDateTime(f"{tr_stop}-12-31")
+tr_stop_UTC = obspy.UTCDateTime(f"{tr_stop}-12-31T23:59:59.999999")
 te_start_UTC = obspy.UTCDateTime(f"{te_start}-01-01")
-te_stop_UTC = obspy.UTCDateTime(f"{te_stop}-12-31")
+te_stop_UTC = obspy.UTCDateTime(f"{te_stop}-12-31T23:59:59.999999")
 
 for station in stations:
     flows = preproc_flow_annotations(pd.read_csv("../catalogs/flow_catalog.csv",index_col=0))
@@ -30,8 +28,6 @@ for station in stations:
     if_detections = preproc_flow_annotations(pd.read_csv(f"../output/if_detections/{station}.csv",index_col=0))
     tr_if_detections =  if_detections[(if_detections["start"] >  tr_start_UTC) & (if_detections["stop"] < tr_stop_UTC)].reset_index(drop=True)
     te_if_detections =  if_detections[(if_detections["start"] >  te_start_UTC) & (if_detections["stop"] < te_stop_UTC)].reset_index(drop=True)
-
-    print(te_if_detections)
 
     valid_detections = extract_valid_segments(tr_if_detections,tr_lower_conf_flows,tr_high_conf_flows)
     print(compute_statistics(valid_detections,tr_high_conf_flows))
