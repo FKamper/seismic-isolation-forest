@@ -2,7 +2,7 @@ import obspy
 import numpy as np
 
 
-def preproc_stream(st: obspy.Stream, resp_path="") -> None:
+def preproc_stream(st: obspy.Stream, taper=False, target_sr=100) -> None:
     """
     Find and remove the response from the input obspy Stream. The response removal happens inplace,
     so no value is returned. Pre-processing and pre-filtering is applied, as well as a tapering.
@@ -14,22 +14,12 @@ def preproc_stream(st: obspy.Stream, resp_path="") -> None:
     :rtype: None
     :return: Nothing
     """
-
-    # Corner frequencies for pre-filtering
-    # pre_filt = [0.005, 0.006, 45.0, 59.0]
-
-    # Tapering to prevent edge-effects when filtering
-    taper = False
-    target_sr = 100
-
     # Loop over all traces and apply pre-processing
     for tr in st:
         tr.detrend("linear")
         tr.detrend("demean")
         if taper:
             tr.taper(0.1)
-
-        # tr_id = tr.get_id()
 
         if tr.stats.sampling_rate != target_sr:
             tr.stats.orig_sample_rate = tr.stats.sampling_rate

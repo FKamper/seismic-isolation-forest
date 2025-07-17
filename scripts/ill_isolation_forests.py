@@ -30,8 +30,6 @@ for station in stations:
         if_mod = train_if(tr_paths)
         dump(if_mod,f"../output/if_models/{station}.joblib")
 
-    print(f"{station}: Training IF Completed")
-
     print(f"{station}: Computing Anomaly Scores")
 
     try:
@@ -42,9 +40,6 @@ for station in stations:
     except (FileNotFoundError, OSError):
         scores_df = compute_scores(np.concatenate([tr_paths, te_paths]), if_mod)
         scores_df.to_csv(f"../output/if_scores/{station}.csv")
-
-
-    print(f"{station}: Anomaly Scores Computed")
 
     print(f"{station}: Calibrating and Deploying Trigger")
 
@@ -72,7 +67,8 @@ for station in stations:
                     continue
 
                 segments = stream_trigger_detections(st, onset_grid[i], offset_grid[j])
-                inter, union, _ = iou(segments, high_conf_flows)
+                valid_segments = extract_valid_segments(segments,lower_conf_flows, high_conf_flows)
+                inter, union, _ = iou(valid_segments, high_conf_flows)
                 iou_table[i, j] = inter[-1] / union[-1]
 
         max_idx = np.unravel_index(np.argmax(iou_table), iou_table.shape)
@@ -94,8 +90,6 @@ for station in stations:
 
         if_segments = stream_trigger_detections(if_st, onset_thres, offset_thres)
         if_segments.to_csv(f"../output/if_segments/{station}.csv")
-
-    print(f"{station}: Trigger Calibrated and Deployed")
 
     print(f"{station}: Generating Detections")
 
@@ -134,7 +128,3 @@ for station in stations:
             (detections["scores"] > score_thres) & (detections["det_lens"] > min_len)
         ].reset_index(drop=True)
         detections.to_csv(f"../output/if_detections/{station}.csv")
-
-    print(f"{station}: Detections Generated")
-
-    break
