@@ -9,6 +9,11 @@ def compute_dtw_distance(x, template):
     return distance
 
 
+def compute_wrapper(args):
+    template_row, segment_template = args
+    return compute_dtw_distance(template_row, segment_template)
+
+
 def template_dtw(t0, t1, paths, templates, if_mod, window_size=10000, stride=5000):
     segment_template = extract_template(
         t0, t1 + timedelta(seconds=50), if_mod, paths, window_size, stride

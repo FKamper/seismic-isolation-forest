@@ -22,8 +22,8 @@ for station in stations:
     flows = preproc_flow_annotations(pd.read_csv("../catalogs/flow_catalog.csv",index_col=0))
     flows = flows[["2022-09-08" not in str(i) for i in flows["start"]]]
 
-    tr_lower_conf_flows, tr_high_conf_flows = extract_split_flows(flows,station,tr_start,tr_stop)
-    te_lower_conf_flows, te_high_conf_flows = extract_split_flows(flows,station,te_start,te_stop)
+    tr_lower_conf_flows, tr_high_conf_flows,_ = extract_split_flows(flows,station,tr_start,tr_stop)
+    te_lower_conf_flows, te_high_conf_flows,_ = extract_split_flows(flows,station,te_start,te_stop)
 
     if_detections = preproc_flow_annotations(pd.read_csv(f"../output/if_detections/{station}.csv",index_col=0))
     tr_if_detections =  if_detections[(if_detections["start"] >  tr_start_UTC) & (if_detections["stop"] < tr_stop_UTC)].reset_index(drop=True)
@@ -42,5 +42,9 @@ for station in stations:
     valid_detections = extract_valid_segments(te_if_detections,te_lower_conf_flows,te_high_conf_flows)
     print(compute_statistics(valid_detections,te_high_conf_flows))
 
-    valid_detections = extract_valid_segments(te_dtw_detections,te_lower_conf_flows,te_high_conf_flows)
-    print(compute_statistics(valid_detections,te_high_conf_flows))
+    try:
+        valid_detections = extract_valid_segments(te_dtw_detections,te_lower_conf_flows,te_high_conf_flows)
+        print(compute_statistics(valid_detections,te_high_conf_flows))
+
+    except:
+        continue

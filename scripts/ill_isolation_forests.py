@@ -9,11 +9,12 @@ from seismicif.datamod.trigger_utils import stream_trigger_detections
 from seismicif.isolation_forest import train_if, compute_scores, create_if_stream
 from seismicif.metrics import iou, est_thresholds
 
-stations = ["ILL11","ILL12","ILL13","ILL14","ILL15","ILL16","ILL17","ILL18"]
+
 tr_start, tr_stop, te_start, te_stop = 2018, 2020, 2021, 2022
 onset_grid = np.array([0.55, 0.60, 0.65, 0.70])
 offset_grid = np.array([0.50, 0.55, 0.60, 0.65])
 network = "XP"
+stations = ["ILL11","ILL12","ILL13","ILL14","ILL15","ILL16","ILL17","ILL18"]
 
 for station in stations:
     channel = "EHZ.D"
@@ -48,16 +49,21 @@ for station in stations:
 
     except (FileNotFoundError, OSError):
         flows = preproc_flow_annotations(pd.read_csv("../catalogs/initial_catalog.csv",index_col=0))
-        lower_conf_flows, high_conf_flows = extract_split_flows(flows,station,tr_start,tr_stop)
+        lower_conf_flows, high_conf_flows, all_flows = extract_split_flows(flows,station,tr_start,tr_stop)
+
+        dates = []
+        for i in range(all_flows.shape[0]):
+            dates.append(all_flows["start"].iloc[i].date)
+            dates.append(all_flows["stop"].iloc[i].date)
+        dates = np.array(dates)
+        dates = np.unique(dates)
 
         if_st = create_if_stream(scores_df, station=station, sr=0.02, network=network)
         st = obspy.Stream()
-        for i in range(high_conf_flows.shape[0]):
-            dt = high_conf_flows["start"].iloc[i]
-            start = obspy.UTCDateTime(f"{dt.date}T00:00:00")
-            dt = high_conf_flows["stop"].iloc[i]
-            end = obspy.UTCDateTime(f"{dt.date}T23:59:59.999999")
 
+        for dt in dates:
+            start = obspy.UTCDateTime(f"{dt}T00:00:00")
+            end = obspy.UTCDateTime(f"{dt}T23:59:59.999999")
             st += if_st.copy().trim(start, end)
 
         iou_table = np.zeros([len(onset_grid), len(offset_grid)])
@@ -67,8 +73,7 @@ for station in stations:
                     continue
 
                 segments = stream_trigger_detections(st, onset_grid[i], offset_grid[j])
-                valid_segments = extract_valid_segments(segments,lower_conf_flows, high_conf_flows)
-                inter, union, _ = iou(valid_segments, high_conf_flows)
+                inter, union, _ = iou(segments, all_flows)
                 iou_table[i, j] = inter[-1] / union[-1]
 
         max_idx = np.unravel_index(np.argmax(iou_table), iou_table.shape)
@@ -98,7 +103,7 @@ for station in stations:
 
     except (FileNotFoundError, OSError):
         flows = preproc_flow_annotations(pd.read_csv("../catalogs/calibration_catalog.csv",index_col=0))
-        lower_conf_flows, high_conf_flows = extract_split_flows(flows,station,tr_start,tr_stop)
+        lower_conf_flows, high_conf_flows, _ = extract_split_flows(flows,station,tr_start,tr_stop)
         tr_start_UTC = obspy.UTCDateTime(f"{tr_start}-01-01")
         tr_stop_UTC = obspy.UTCDateTime(f"{tr_stop}-12-31T23:59:59.999999")
         tr_segments =  if_segments[(if_segments["start"] >  tr_start_UTC) & (if_segments["stop"] < tr_stop_UTC)].reset_index(drop=True)

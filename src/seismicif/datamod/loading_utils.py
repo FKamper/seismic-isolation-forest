@@ -219,13 +219,16 @@ def extract_split_flows(df, station, start, stop):
 
     df = df[df["station"] == station].reset_index(drop=True)
     df = df[(df["start"] > start) & (df["stop"] < stop)].reset_index(drop=True)
+    df = df[df["confidence"] != "earthquake"].reset_index(drop=True)
+    df = df[df["confidence"] != "rockfall"].reset_index(drop=True)
+    df = df[df["confidence"] != "quarrywork"].reset_index(drop=True)
 
     high_conf_flows = df[df["confidence"] == "high"].reset_index(drop=True)
     lower_conf_flows = df[
         (df["confidence"] == "low") | (df["confidence"] == "med")
     ].reset_index(drop=True)
 
-    return lower_conf_flows, high_conf_flows
+    return lower_conf_flows, high_conf_flows, df
 
 
 def extract_valid_segments(segments, lower_conf_flows, high_conf_flows):
