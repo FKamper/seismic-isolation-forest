@@ -2,8 +2,8 @@ import os
 import numpy as np
 import pandas as pd
 import obspy
-from joblib import dump, load
 import json
+from joblib import dump, load
 from tqdm import tqdm
 from seismicif.datamod.loading_utils import find_paths, preproc_flow_annotations, extract_split_flows, extract_valid_segments, extract_template
 from seismicif.datamod.trigger_utils import stream_trigger_detections
@@ -80,7 +80,6 @@ if __name__ == "__main__":
                     high_conf_flows, segments.loc[[i]].reset_index(drop=True)
                 )
                 high_conf_overlap = np.append(intersection[0], np.diff(intersection)) > 0
-
                 dtw_scores.append(np.mean(dtw_dists[i, ~high_conf_overlap]))
 
             dtw_segments = segments.copy()

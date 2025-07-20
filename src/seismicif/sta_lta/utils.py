@@ -7,6 +7,7 @@ from datetime import timedelta
 from seismicif.datamod.loading_utils import remove_duplicate_traces, remove_overlaps
 from seismicif.datamod.preproc_utils import preproc_stream
 from seismicif.datamod.trigger_utils import trace_trigger_detections
+from tqdm import tqdm
 
 
 def create_slta_trace(tr, sw, lw, station=""):
@@ -123,7 +124,7 @@ def slta_detections_from_paths(paths, sw, lw, onset_thres, offset_thres, preproc
     res_tr = None
     dtc = []
 
-    for p in paths:
+    for p in tqdm(paths.tolist()):
         st = obspy.read(p)
         if preproc:
             preproc_stream(st)
@@ -136,8 +137,6 @@ def slta_detections_from_paths(paths, sw, lw, onset_thres, offset_thres, preproc
 
         if len(new_dtc) > 0:
             dtc.append(new_dtc)
-
-        print(p, end=" \r")
 
     dtc = pd.concat(dtc).reset_index(drop=True)
     reorder = np.flip(np.argsort(dtc["scores"]))

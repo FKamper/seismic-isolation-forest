@@ -133,15 +133,13 @@ def preproc_flow_annotations(flows):
 
 
 def date_to_year_day(date_str):
-    """Converts a date in 'YYYY-MM-DD' format to 'YYYY.DDD' where DDD is the day of the year with leading zeros."""
-    date = datetime.strptime(date_str, "%Y-%m-%d")
+    date = datetime.strptime(str(date_str), "%Y-%m-%d")
     year = date.year
     day_of_year = date.timetuple().tm_yday
     return f"{year}.{day_of_year:03d}"
 
 
 def find_date_in_strings(strings, date_str):
-    """Finds strings that contain the specified date."""
     target = date_to_year_day(date_str)
     return [s for s in strings if target in str(s)]
 
