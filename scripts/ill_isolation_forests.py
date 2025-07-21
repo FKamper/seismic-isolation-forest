@@ -25,30 +25,30 @@ for station in stations:
     print(f"{station}: Training IF")
 
     try:
-        if_mod = load(f"../output/if_models/{station}.joblib")
+        if_mod = load(f"../output/XP/if/models/{station}.joblib")
 
     except (FileNotFoundError, OSError):
         if_mod = train_if(tr_paths)
-        dump(if_mod,f"../output/if_models/{station}.joblib")
+        dump(if_mod,f"../output/XP/if/models/{station}.joblib")
 
     print(f"{station}: Computing Anomaly Scores")
 
     try:
-        scores_df = pd.read_csv(f"../output/if_scores/{station}.csv",index_col=0)
+        scores_df = pd.read_csv(f"../output/XP/if/scores/{station}.csv",index_col=0)
         scores_df["start"] = [obspy.UTCDateTime(str(i)) for i in scores_df["start"]]
         scores_df["stop"] = [obspy.UTCDateTime(str(i)) for i in scores_df["stop"]]
 
     except (FileNotFoundError, OSError):
         scores_df = compute_scores(np.concatenate([tr_paths, te_paths]), if_mod)
-        scores_df.to_csv(f"../output/if_scores/{station}.csv")
+        scores_df.to_csv(f"../output/XP/if/scores/{station}.csv")
 
     print(f"{station}: Calibrating and Deploying Trigger")
 
     try:
-        if_segments = preproc_flow_annotations(pd.read_csv(f"../output/if_segments/{station}.csv",index_col=0))
+        if_segments = preproc_flow_annotations(pd.read_csv(f"../output/XP/if/segments/{station}.csv",index_col=0))
 
     except (FileNotFoundError, OSError):
-        flows = preproc_flow_annotations(pd.read_csv("../catalogs/initial_catalog.csv",index_col=0))
+        flows = preproc_flow_annotations(pd.read_csv("../catalogs/XP/initial_catalog.csv",index_col=0))
         lower_conf_flows, high_conf_flows, all_flows = extract_split_flows(flows,station,tr_start,tr_stop)
 
         dates = []
@@ -80,7 +80,7 @@ for station in stations:
         onset_thres, offset_thres = onset_grid[max_idx[0]], offset_grid[max_idx[1]]
 
         output_dict = {"station":station,"onset_thres":onset_thres,"offset_thres":offset_thres}
-        filename = "../output/if_segments/trigger_params.json"
+        filename = "../output/XP/if/segments/trigger_params.json"
 
         if os.path.exists(filename) and os.path.getsize(filename) > 0:
             with open(filename, "r") as f:
@@ -94,15 +94,15 @@ for station in stations:
             json.dump(data, f, indent=4)
 
         if_segments = stream_trigger_detections(if_st, onset_thres, offset_thres)
-        if_segments.to_csv(f"../output/if_segments/{station}.csv")
+        if_segments.to_csv(f"../output/XP/if/segments/{station}.csv")
 
     print(f"{station}: Generating Detections")
 
     try:
-        pd.read_csv(f"../output/if_detections/{station}.csv")
+        pd.read_csv(f"../output/XP/if/detections/{station}.csv")
 
     except (FileNotFoundError, OSError):
-        flows = preproc_flow_annotations(pd.read_csv("../catalogs/calibration_catalog.csv",index_col=0))
+        flows = preproc_flow_annotations(pd.read_csv("../catalogs/XP/calibration_catalog.csv",index_col=0))
         lower_conf_flows, high_conf_flows, _ = extract_split_flows(flows,station,tr_start,tr_stop)
         tr_start_UTC = obspy.UTCDateTime(f"{tr_start}-01-01")
         tr_stop_UTC = obspy.UTCDateTime(f"{tr_stop}-12-31T23:59:59.999999")
@@ -111,7 +111,7 @@ for station in stations:
         valid_segments = extract_valid_segments(tr_segments,lower_conf_flows,high_conf_flows)
         _, min_len, score_thres = est_thresholds(valid_segments, high_conf_flows)
 
-        filename = "../output/if_detections/threshold_params.json"
+        filename = "../output/XP/if/detections/threshold_params.json"
 
         if os.path.exists(filename) and os.path.getsize(filename) > 0:
             with open(filename, "r") as f:
@@ -132,4 +132,4 @@ for station in stations:
         detections = detections[
             (detections["scores"] > score_thres) & (detections["det_lens"] > min_len)
         ].reset_index(drop=True)
-        detections.to_csv(f"../output/if_detections/{station}.csv")
+        detections.to_csv(f"../output/XP/if/detections/{station}.csv")

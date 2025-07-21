@@ -36,13 +36,13 @@ for station in stations:
     if station == "ILL11": channel = "HHZ.D"
 
     tr_paths, te_paths = find_paths(network, station, channel, tr_start, tr_stop), find_paths("XP", station, channel, te_start, te_stop)
-    flows = preproc_flow_annotations(pd.read_csv("../catalogs/initial_catalog.csv",index_col=0))
+    flows = preproc_flow_annotations(pd.read_csv("../XP/catalogs/initial_catalog.csv",index_col=0))
     lower_conf_flows, high_conf_flows, all_flows = extract_split_flows(flows,station,tr_start,tr_stop)
 
     print(f"{station}: Calibrating Trigger")
 
     try:
-        iou_table = np.load(f"../output/sta_lta_grids/{station}.npy")
+        iou_table = np.load(f"../output/sta_lta/iou_grids/{station}.npy")
 
     except (FileNotFoundError, OSError):
         print(f"{station}: Extracting Miniseed Recordings")
@@ -117,12 +117,12 @@ for station in stations:
             else:
                 stop = True
 
-        np.save(f"../output/sta_lta_grids/{station}.npy", iou_table)
+        np.save(f"../output/XP/sta_lta/iou_grids/{station}.npy", iou_table)
 
     print(f"{station}: Extracting Trigger Segments")
 
     try:
-        sta_lta_segments = pd.read_csv(f"../output/sta_lta_segments/{station}.csv", index_col=0)
+        sta_lta_segments = pd.read_csv(f"../output/XP/sta_lta/segments/{station}.csv", index_col=0)
 
     except (FileNotFoundError, OSError):
         iou_table[np.isnan(iou_table)] = 0
@@ -134,7 +134,7 @@ for station in stations:
         onset_thres, offset_thres = onset_grid[kc], offset_grid[lc]
 
         output_dict = {"station":station,"onset_thres":onset_thres,"offset_thres":offset_thres,"sw":sw,"lw":lw}
-        filename = "../output/sta_lta_grids/trigger_params.json"
+        filename = "../output/XP/sta_lta/segments/trigger_params.json"
 
         if os.path.exists(filename) and os.path.getsize(filename) > 0:
             with open(filename, "r") as f:
@@ -148,15 +148,15 @@ for station in stations:
             json.dump(data, f, indent=4)
 
         sta_lta_segments = slta_detections_from_paths(np.concatenate([tr_paths,te_paths]), sw, lw, onset_thres, offset_thres)
-        sta_lta_segments.to_csv(f"../output/sta_lta_segments/{station}.csv")
+        sta_lta_segments.to_csv(f"../output/XP/sta_lta/segments/{station}.csv")
 
     print(f"{station}: Generating Detections")
 
     try:
-        pd.read_csv(f"../output/sta_lta_detections/{station}.csv")
+        pd.read_csv(f"../output/XP/sta_lta/detections/{station}.csv")
 
     except (FileNotFoundError, OSError):
-        flows = preproc_flow_annotations(pd.read_csv("../catalogs/calibration_catalog.csv",index_col=0))
+        flows = preproc_flow_annotations(pd.read_csv("../XP/catalogs/calibration_catalog.csv",index_col=0))
         lower_conf_flows, high_conf_flows, _ = extract_split_flows(flows,station,tr_start,tr_stop)
         tr_start_UTC = obspy.UTCDateTime(f"{tr_start}-01-01")
         tr_stop_UTC = obspy.UTCDateTime(f"{tr_stop}-12-31T23:59:59.999999")
@@ -165,7 +165,7 @@ for station in stations:
         valid_segments = extract_valid_segments(tr_segments,lower_conf_flows,high_conf_flows)
         _, min_len, score_thres = est_thresholds(valid_segments, high_conf_flows)
 
-        filename = "../output/sta_lta_detections/threshold_params.json"
+        filename = "../output/XP/sta_lta/detections/threshold_params.json"
 
         if os.path.exists(filename) and os.path.getsize(filename) > 0:
             with open(filename, "r") as f:
@@ -186,6 +186,4 @@ for station in stations:
         detections = detections[
             (detections["scores"] > score_thres) & (detections["det_lens"] > min_len)
         ].reset_index(drop=True)
-        detections.to_csv(f"../output/sta_lta_detections/{station}.csv")
-
-        break
+        detections.to_csv(f"../output/XP/sta_lta/detections/{station}.csv")
