@@ -230,8 +230,12 @@ def extract_split_flows(df, station, start, stop):
 
 
 def extract_valid_segments(segments, lower_conf_flows, high_conf_flows):
+    if len(segments) == 0:
+        return segments
+
     intersections, _, _ = iou(segments, lower_conf_flows)
     non_lower_conf = np.append(intersections[0], np.diff(intersections)) == 0
     intersections, _, _ = iou(segments, high_conf_flows)
     high_conf = np.append(intersections[0], np.diff(intersections)) > 0
+
     return segments[non_lower_conf | high_conf].reset_index(drop=True)

@@ -97,7 +97,7 @@ for station in stations:
 
                 stop = False
                 lw = int(sampling_rate * lw_grid[j])
-                sw = sampling_rate * sw_grid[i] * lw_grid[j]
+                sw = int(sampling_rate * sw_grid[i] * lw_grid[j])
                 onset_thres, offset_thres = onset_grid[k], offset_grid[l]
 
                 iou_table[i, j, k, l] = slta_compute_iou(st, all_flows, sw, lw, onset_thres, offset_thres)
@@ -130,7 +130,7 @@ for station in stations:
         ic, jc, kc, lc = np.unravel_index(np.argmax(iou_table), iou_table.shape)
 
         lw = int(sampling_rate * lw_grid[jc])
-        sw = sampling_rate * sw_grid[ic] * lw_grid[jc]
+        sw = int(sampling_rate * sw_grid[ic] * lw_grid[jc])
         onset_thres, offset_thres = onset_grid[kc], offset_grid[lc]
 
         output_dict = {"station":station,"onset_thres":onset_thres,"offset_thres":offset_thres,"sw":sw,"lw":lw}
