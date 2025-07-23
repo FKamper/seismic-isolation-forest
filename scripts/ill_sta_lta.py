@@ -36,13 +36,13 @@ for station in stations:
     if station == "ILL11": channel = "HHZ.D"
 
     tr_paths, te_paths = find_paths(network, station, channel, tr_start, tr_stop), find_paths("XP", station, channel, te_start, te_stop)
-    flows = preproc_flow_annotations(pd.read_csv("../XP/catalogs/initial_catalog.csv",index_col=0))
+    flows = preproc_flow_annotations(pd.read_csv("../catalogs/XP/initial_catalog.csv",index_col=0))
     lower_conf_flows, high_conf_flows, all_flows = extract_split_flows(flows,station,tr_start,tr_stop)
 
     print(f"{station}: Calibrating Trigger")
 
     try:
-        iou_table = np.load(f"../output/sta_lta/iou_grids/{station}.npy")
+        iou_table = np.load(f"../output/XP/sta_lta/iou_grids/{station}.npy")
 
     except (FileNotFoundError, OSError):
         print(f"{station}: Extracting Miniseed Recordings")
@@ -156,7 +156,7 @@ for station in stations:
         pd.read_csv(f"../output/XP/sta_lta/detections/{station}.csv")
 
     except (FileNotFoundError, OSError):
-        flows = preproc_flow_annotations(pd.read_csv("../XP/catalogs/calibration_catalog.csv",index_col=0))
+        flows = preproc_flow_annotations(pd.read_csv("../catalogs/XP/calibration_catalog.csv",index_col=0))
         lower_conf_flows, high_conf_flows, _ = extract_split_flows(flows,station,tr_start,tr_stop)
         tr_start_UTC = obspy.UTCDateTime(f"{tr_start}-01-01")
         tr_stop_UTC = obspy.UTCDateTime(f"{tr_stop}-12-31T23:59:59.999999")

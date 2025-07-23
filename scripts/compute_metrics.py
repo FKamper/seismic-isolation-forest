@@ -26,39 +26,39 @@ for station in stations:
     tr_lower_conf_flows, tr_high_conf_flows,_ = extract_split_flows(flows,station,tr_start,tr_stop)
     te_lower_conf_flows, te_high_conf_flows,_ = extract_split_flows(flows,station,te_start,te_stop)
 
-    # sta_lta_detections = preproc_flow_annotations(pd.read_csv(f"../output/sta_lta_detections/{station}.csv",index_col=0))
-    # tr_sta_lta_detections =  sta_lta_detections[(sta_lta_detections["start"] >  tr_start_UTC) & (sta_lta_detections["stop"] < tr_stop_UTC)].reset_index(drop=True)
-    # te_sta_lta_detections =  sta_lta_detections[(sta_lta_detections["start"] >  te_start_UTC) & (sta_lta_detections["stop"] < te_stop_UTC)].reset_index(drop=True)
+    sta_lta_detections = preproc_flow_annotations(pd.read_csv(f"../output/XP/sta_lta/detections/{station}.csv",index_col=0))
+    tr_sta_lta_detections =  sta_lta_detections[(sta_lta_detections["start"] >  tr_start_UTC) & (sta_lta_detections["stop"] < tr_stop_UTC)].reset_index(drop=True)
+    te_sta_lta_detections =  sta_lta_detections[(sta_lta_detections["start"] >  te_start_UTC) & (sta_lta_detections["stop"] < te_stop_UTC)].reset_index(drop=True)
 
     if_detections = preproc_flow_annotations(pd.read_csv(f"../output/XP/if/detections/{station}.csv",index_col=0))
     tr_if_detections =  if_detections[(if_detections["start"] >  tr_start_UTC) & (if_detections["stop"] < tr_stop_UTC)].reset_index(drop=True)
     te_if_detections =  if_detections[(if_detections["start"] >  te_start_UTC) & (if_detections["stop"] < te_stop_UTC)].reset_index(drop=True)
 
-    # dtw_detections = preproc_flow_annotations(pd.read_csv(f"../output/dtw_detections/{station}.csv",index_col=0))
-    # tr_dtw_detections =  dtw_detections[(dtw_detections["start"] >  tr_start_UTC) & (dtw_detections["stop"] < tr_stop_UTC)].reset_index(drop=True)
-    # te_dtw_detections =  dtw_detections[(dtw_detections["start"] >  te_start_UTC) & (dtw_detections["stop"] < te_stop_UTC)].reset_index(drop=True)
+    dtw_detections = preproc_flow_annotations(pd.read_csv(f"../output/XP/if_dtw/detections/{station}.csv",index_col=0))
+    tr_dtw_detections =  dtw_detections[(dtw_detections["start"] >  tr_start_UTC) & (dtw_detections["stop"] < tr_stop_UTC)].reset_index(drop=True)
+    te_dtw_detections =  dtw_detections[(dtw_detections["start"] >  te_start_UTC) & (dtw_detections["stop"] < te_stop_UTC)].reset_index(drop=True)
 
     print("Training Metrics")
 
-    # valid_detections = extract_valid_segments(tr_sta_lta_detections,tr_lower_conf_flows,tr_high_conf_flows)
-    # print(compute_statistics(valid_detections,tr_high_conf_flows))
+    valid_detections = extract_valid_segments(tr_sta_lta_detections,tr_lower_conf_flows,tr_high_conf_flows)
+    print(compute_statistics(valid_detections,tr_high_conf_flows))
 
     valid_detections = extract_valid_segments(tr_if_detections,tr_lower_conf_flows,tr_high_conf_flows)
     print(compute_statistics(valid_detections,tr_high_conf_flows))
 
-    # valid_detections = extract_valid_segments(tr_dtw_detections,tr_lower_conf_flows,tr_high_conf_flows)
-    # print(compute_statistics(valid_detections,tr_high_conf_flows))
+    valid_detections = extract_valid_segments(tr_dtw_detections,tr_lower_conf_flows,tr_high_conf_flows)
+    print(compute_statistics(valid_detections,tr_high_conf_flows))
 
     print("Testing Metrics")
-    # valid_detections = extract_valid_segments(te_sta_lta_detections,te_lower_conf_flows,te_high_conf_flows)
-    # print(compute_statistics(valid_detections,te_high_conf_flows))
+    valid_detections = extract_valid_segments(te_sta_lta_detections,te_lower_conf_flows,te_high_conf_flows)
+    print(compute_statistics(valid_detections,te_high_conf_flows))
 
     valid_detections = extract_valid_segments(te_if_detections,te_lower_conf_flows,te_high_conf_flows)
     print(compute_statistics(valid_detections,te_high_conf_flows))
 
-    # try:
-    #     valid_detections = extract_valid_segments(te_dtw_detections,te_lower_conf_flows,te_high_conf_flows)
-    #     print(compute_statistics(valid_detections,te_high_conf_flows))
+    try:
+        valid_detections = extract_valid_segments(te_dtw_detections,te_lower_conf_flows,te_high_conf_flows)
+        print(compute_statistics(valid_detections,te_high_conf_flows))
 
-    # except:
-    #     continue
+    except:
+        continue

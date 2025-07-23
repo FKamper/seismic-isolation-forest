@@ -36,14 +36,14 @@ if __name__ == "__main__":
         if_mod = load(f"../output/XP/if/models/{station}.joblib")
         segments = preproc_flow_annotations(pd.read_csv(f"../output/XP/if/segments/{station}.csv",index_col=0))
 
-        flows = preproc_flow_annotations(pd.read_csv("../XP/catalogs/initial_catalog.csv",index_col=0))
+        flows = preproc_flow_annotations(pd.read_csv("../catalogs/XP/initial_catalog.csv",index_col=0))
         lower_conf_flows, high_conf_flows, _ = extract_split_flows(flows,station,tr_start,tr_stop)
 
         print(f"{station}: Extracting High-confidence Templates")
 
         loaded = False
         try:
-            dtw_dists = np.load(f"../output/XP/dtw/distances/{station}.npy")
+            dtw_dists = np.load(f"../output/XP/if_dtw/distances/{station}.npy")
             loaded = True
 
         except (FileNotFoundError, OSError):
@@ -64,12 +64,12 @@ if __name__ == "__main__":
                 dtw_dists = list(tqdm(pool.imap(fn, range(segments.shape[0])), total=segments.shape[0]))
 
             dtw_dists = np.array(dtw_dists)
-            np.save(f"../output/XP/dtw/distances/{station}.npy", dtw_dists)
+            np.save(f"../output/XP/if_dtw/distances/{station}.npy", dtw_dists)
 
         print(f"{station}: Generating Segments")
 
         try:
-            dtw_segments = preproc_flow_annotations(pd.read_csv(f"../output/XP/dtw/segments/{station}.csv",index_col=0))
+            dtw_segments = preproc_flow_annotations(pd.read_csv(f"../output/XP/if_dtw/segments/{station}.csv",index_col=0))
 
         except (FileNotFoundError, OSError):
             dtw_scores = []
@@ -87,16 +87,16 @@ if __name__ == "__main__":
                 drop=True
             )
 
-            dtw_segments.to_csv(f"../output/XP/dtw/segments/{station}.csv")
+            dtw_segments.to_csv(f"../output/XP/if_dtw/segments/{station}.csv")
 
 
         print(f"{station}: Generating Detections")
 
         try:
-            pd.read_csv(f"../output/XP/dtw/detections/{station}.csv")
+            pd.read_csv(f"../output/XP/if_dtw/detections/{station}.csv")
 
         except (FileNotFoundError, OSError):
-            flows = preproc_flow_annotations(pd.read_csv("../XP/catalogs/calibration_catalog.csv",index_col=0))
+            flows = preproc_flow_annotations(pd.read_csv("../catalogs/XP/calibration_catalog.csv",index_col=0))
             lower_conf_flows, high_conf_flows, _ = extract_split_flows(flows,station,tr_start,tr_stop)
             tr_start_UTC = obspy.UTCDateTime(f"{tr_start}-01-01")
             tr_stop_UTC = obspy.UTCDateTime(f"{tr_stop}-12-31T23:59:59.999999")
@@ -105,7 +105,7 @@ if __name__ == "__main__":
             valid_segments = extract_valid_segments(tr_segments,lower_conf_flows,high_conf_flows)
             _, min_len, score_thres = est_thresholds(valid_segments, high_conf_flows,mode="upper")
 
-            filename = "../output/XP/dtw/detections/threshold_params.json"
+            filename = "../output/XP/if_dtw/detections/threshold_params.json"
 
             if os.path.exists(filename) and os.path.getsize(filename) > 0:
                 with open(filename, "r") as f:
@@ -126,4 +126,4 @@ if __name__ == "__main__":
             detections = detections[
                 (detections["scores"] < score_thres) & (detections["det_lens"] > min_len)
             ].reset_index(drop=True)
-            detections.to_csv(f"../output/XP/dtw/detections/{station}.csv")
+            detections.to_csv(f"../output/XP/if_dtw/detections/{station}.csv")
