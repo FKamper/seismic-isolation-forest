@@ -8,7 +8,7 @@ from seismicif.datamod.loading_utils import find_paths
 from seismicif.datamod.trigger_utils import stream_trigger_detections
 from seismicif.isolation_forest import train_if, compute_scores, create_if_stream
 
-onset_thres, offset_thres = 0.65, 0.65
+onset_thres, offset_thres = 0.6, 0.6
 network = "DK"
 stations = ["NUUG","KARAT"]
 control_station = "ILULI"

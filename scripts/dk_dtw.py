@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
+import pickle
 import obspy
 import json
 from joblib import dump, load
@@ -25,7 +26,6 @@ def distribute_segment_dtw(args):
 if __name__ == "__main__":
 
     for station in stations:
-
         if station == "NUUG":
             start, stop = 2017, 2017
 
@@ -33,15 +33,20 @@ if __name__ == "__main__":
             start, stop = 2022, 2023
 
         if_mod = load(f"../output/DK/if/models/{station}.joblib")
-        segments = preproc_flow_annotations(pd.read_csv(f"../output/DK/if/segments/{station}.csv",index_col=0))
+        segments = preproc_flow_annotations(pd.read_csv(f"../output/DK/if/segments/{station}.csv",index_col=0)).iloc[:50,:]
         paths = find_paths(network, station, channel, start, stop)
 
         n = segments.shape[0]
         indices = [(i, j, segments, paths, if_mod) for i in range(n) for j in range(i + 1, n)]
 
-        print(indices)
-
         print(f"{station}: Performing Pairwise Segment DTW")
 
-        # with mp.Pool(mp.cpu_count()) as pool:
-        #     results = list(tqdm(pool.imap(distribute_segment_dtw, indices), total=len(indices)))
+        with mp.Pool(mp.cpu_count()) as pool:
+            results = list(tqdm(pool.imap(distribute_segment_dtw, indices), total=len(indices)))
+
+        indices = [(i, j) for i in range(n) for j in range(i + 1, n)]
+
+        with open(f'../output/DK/dtw/info/{station}.pkl', 'wb') as f:
+            pickle.dump([indices,results], f)
+
+        break
