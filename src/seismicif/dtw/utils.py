@@ -38,7 +38,6 @@ def segment_dtw(seg1, seg2, if_mod, window_size=10000, stride=5000):
     dtw_dists = []
 
     for i in range(len(path)):
-        print(np.round(100 * (i / len(path))), "%", end=" \r")
         x = X1[path[i][0], :]
         x = (x - np.mean(x)) / np.std(x)
 
