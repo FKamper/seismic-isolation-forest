@@ -239,3 +239,36 @@ def extract_valid_segments(segments, lower_conf_flows, high_conf_flows):
     high_conf = np.append(intersections[0], np.diff(intersections)) > 0
 
     return segments[non_lower_conf | high_conf].reset_index(drop=True)
+
+
+def limit_segment_length(t0, t1, paths, if_mod, max_len=3550):
+    tr = read_segment(t0, t1, paths)
+    X, T = sliding_windows_from_trace(tr)
+    if_scores = -if_mod.score_samples(X)
+
+    idx_low = np.argmax(if_scores)
+    idx_high = np.argmax(if_scores)
+
+    while True:
+        seg_length = T[idx_high][1] - T[idx_low][0]
+        if seg_length > max_len:
+            break
+
+        if idx_low == 0 and idx_high == len(if_scores) - 1:
+            break
+
+        if idx_low == 0:
+            idx_high += 1
+        elif idx_high == len(if_scores) - 1:
+            idx_low -= 1
+        elif if_scores[idx_high + 1] > if_scores[idx_low - 1]:
+            idx_high += 1
+        else:
+            idx_low -= 1
+
+    X = X[idx_low : idx_high + 1]
+    if_scores = if_scores[idx_low : idx_high + 1]
+    start = T[idx_low][0]
+    stop = T[idx_high][1]
+
+    return X, if_scores, start, stop

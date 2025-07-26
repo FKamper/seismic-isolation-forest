@@ -1,6 +1,6 @@
 from fastdtw import fastdtw
 import numpy as np
-from seismicif.datamod.loading_utils import extract_template, sliding_windows_from_trace
+from seismicif.datamod.loading_utils import extract_template
 from datetime import timedelta
 
 
@@ -27,14 +27,11 @@ def template_dtw(t0, t1, paths, templates, if_mod, window_size=10000, stride=500
     )
 
 
-def segment_dtw(seg1, seg2, if_mod, window_size=10000, stride=5000):
-    X1, _ = sliding_windows_from_trace(seg1, window_size, stride)
-    scores_seg1 = -if_mod.score_samples(X1)
+def segment_dtw(seg1, seg2):
+    X1, scores_seg1, _, _ = seg1
+    X2, scores_seg2, _, _ = seg2
 
-    X2, _ = sliding_windows_from_trace(seg2, window_size, stride)
-    scores_seg2 = -if_mod.score_samples(X2)
     _, path = fastdtw(scores_seg1, scores_seg2)
-
     dtw_dists = []
 
     for i in range(len(path)):
@@ -46,4 +43,4 @@ def segment_dtw(seg1, seg2, if_mod, window_size=10000, stride=5000):
 
         dtw_dists.append(fastdtw(x, y)[0])
 
-    return dtw_dists
+    return dtw_dists, path
