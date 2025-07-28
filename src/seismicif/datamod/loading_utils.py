@@ -241,9 +241,11 @@ def extract_valid_segments(segments, lower_conf_flows, high_conf_flows):
     return segments[non_lower_conf | high_conf].reset_index(drop=True)
 
 
-def limit_segment_length(t0, t1, paths, if_mod, max_len=3550):
+def limit_segment_length(
+    t0, t1, paths, if_mod, max_len=1800, window_size=10000, stride=5000
+):
     tr = read_segment(t0, t1, paths)
-    X, T = sliding_windows_from_trace(tr)
+    X, T = sliding_windows_from_trace(tr, window_size=window_size, stride=stride)
     if_scores = -if_mod.score_samples(X)
 
     idx_low = np.argmax(if_scores)
@@ -251,7 +253,7 @@ def limit_segment_length(t0, t1, paths, if_mod, max_len=3550):
 
     while True:
         seg_length = T[idx_high][1] - T[idx_low][0]
-        if seg_length > max_len:
+        if seg_length >= max_len:
             break
 
         if idx_low == 0 and idx_high == len(if_scores) - 1:

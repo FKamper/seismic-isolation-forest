@@ -70,20 +70,20 @@ for station in stations:
         control_scores_df = compute_scores(control_paths, control_if_mod)
         control_scores_df.to_csv(f"../output/DK/if/scores/{station}_control.csv")
 
-    print(f"{station}: Exctracting Segments")
-
     try:
         pd.read_csv(f"../output/DK/if/segments/{station}.csv")
 
     except (FileNotFoundError, OSError):
+        print(f"{station}: Creating IF Streams")
         if_st = create_if_stream(scores_df, station=station, sr=0.02, network=network)
         control_if_st = create_if_stream(control_scores_df, station=station, sr=0.02, network=network)
         if_segments = stream_trigger_detections(if_st, onset_thres, offset_thres)
 
+        print(f"{station}: Exctracting Segments")
         control_scores = []
         for i in tqdm(range(if_segments.shape[0])):
-            _,_,t0,t1 = limit_segment_length(if_segments["start"][i],if_segments["stop"][i],paths,if_mod)
-            st = control_if_st.copy().trim(t0,t1)
+            _, _, seg_start, seg_stop = limit_segment_length(if_segments["start"][i],if_segments["stop"][i],paths,if_mod)
+            st = control_if_st.copy().trim(seg_start, seg_stop)
             max_val = -np.inf
             for tr in st:
                 max_val = max(max_val,np.max(tr.data))
