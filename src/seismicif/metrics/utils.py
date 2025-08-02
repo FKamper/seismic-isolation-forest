@@ -102,3 +102,32 @@ def compute_statistics(detections, gt):
         "FP": FP,
         "TP": TP,
     }
+
+
+def find_fp_fn(df, gt):
+    if len(df) == 0:
+        FP = pd.DataFrame([])
+        FN = gt
+
+    else:
+        intersection, _, _ = iou(df, gt)
+        FP = df.iloc[
+            np.where(np.append(intersection[0], np.diff(intersection)) == 0)[0], :
+        ].reset_index(drop=True)
+
+        intersection, _, _ = iou(gt, df)
+        FN = gt.iloc[
+            np.where(np.append(intersection[0], np.diff(intersection)) == 0)[0], :
+        ].reset_index(drop=True)
+
+    return FP, FN
+
+
+def find_unconfirmed_fp(detections, station_flows, confirmed_fp, station, source):
+    fp = find_fp_fn(detections, station_flows)[0]
+    fp = find_fp_fn(fp, confirmed_fp)[0]
+    if len(fp) > 0:
+        fp.drop(columns=["scores", "det_lens"], inplace=True)
+        fp.insert(0, "station", np.repeat(station, len(fp)))
+        fp.insert(len(fp.columns), "source", np.repeat(source, len(fp)))
+    return fp
