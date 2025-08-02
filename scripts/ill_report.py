@@ -153,3 +153,131 @@ print(pd.DataFrame(tr_metrics).T)
 
 print(f"\n===== Testing Metrics =====\n")
 print(pd.DataFrame(te_metrics).T)
+
+tr_lower_conf_recall_dict = {}
+te_lower_conf_recall_dict = {}
+for station in stations:
+    tr_lower_conf_recall_dict[station] = {}
+    tr_lower_conf_flows, tr_high_conf_flows,_ = extract_split_flows(flows,station,tr_start,tr_stop)
+    med_conf_flows = tr_lower_conf_flows[tr_lower_conf_flows["confidence"] == "med"].reset_index(drop=True)
+    low_conf_flows = tr_lower_conf_flows[tr_lower_conf_flows["confidence"] == "low"].reset_index(drop=True)
+
+    tr_lower_conf_recall_dict[station]["#_low_conf"] = len(low_conf_flows)
+    tr_lower_conf_recall_dict[station]["#_med_conf"] = len(med_conf_flows)
+
+    sta_lta_detections = all_detections[station]["tr_detections"]["sta_lta"]
+    if_detections = all_detections[station]["tr_detections"]["if"]
+    dtw_detections = all_detections[station]["tr_detections"]["dtw"]
+
+    tr_lower_conf_recall_dict[station]["sta_lta_lc_recall"] = compute_statistics(sta_lta_detections, low_conf_flows)['recall']
+    tr_lower_conf_recall_dict[station]["if_lc_recall"] = compute_statistics(if_detections, low_conf_flows)['recall']
+    tr_lower_conf_recall_dict[station]["dtw_lc_recall"] = compute_statistics(dtw_detections, low_conf_flows)['recall']
+
+    tr_lower_conf_recall_dict[station]["sta_lta_mc_recall"] = compute_statistics(sta_lta_detections, med_conf_flows)['recall']
+    tr_lower_conf_recall_dict[station]["if_mc_recall"] = compute_statistics(if_detections, med_conf_flows)['recall']
+    tr_lower_conf_recall_dict[station]["dtw_mc_recall"] = compute_statistics(dtw_detections, med_conf_flows)['recall']
+
+    te_lower_conf_recall_dict[station] = {}
+    te_lower_conf_flows, te_high_conf_flows,_ = extract_split_flows(flows,station,te_start,te_stop)
+    med_conf_flows = te_lower_conf_flows[te_lower_conf_flows["confidence"] == "med"].reset_index(drop=True)
+    low_conf_flows = te_lower_conf_flows[te_lower_conf_flows["confidence"] == "low"].reset_index(drop=True)
+
+    te_lower_conf_recall_dict[station]["#_low_conf"] = len(low_conf_flows)
+    te_lower_conf_recall_dict[station]["#_med_conf"] = len(med_conf_flows)
+
+    sta_lta_detections = all_detections[station]["te_detections"]["sta_lta"]
+    if_detections = all_detections[station]["te_detections"]["if"]
+    dtw_detections = all_detections[station]["te_detections"]["dtw"]
+
+    try:
+        te_lower_conf_recall_dict[station]["sta_lta_lc_recall"] = compute_statistics(sta_lta_detections, low_conf_flows)['recall']
+        te_lower_conf_recall_dict[station]["sta_lta_mc_recall"] = compute_statistics(sta_lta_detections, med_conf_flows)['recall']
+    except:
+        te_lower_conf_recall_dict[station]["sta_lta_lc_recall"] = 0.0
+        te_lower_conf_recall_dict[station]["sta_lta_mc_recall"] = 0.0
+
+    try:
+        te_lower_conf_recall_dict[station]["if_lc_recall"] = compute_statistics(if_detections, low_conf_flows)['recall']
+        te_lower_conf_recall_dict[station]["if_mc_recall"] = compute_statistics(if_detections, med_conf_flows)['recall']
+    except:
+        te_lower_conf_recall_dict[station]["if_lc_recall"] = 0.0
+        te_lower_conf_recall_dict[station]["if_mc_recall"] = 0.0
+
+    try:
+        te_lower_conf_recall_dict[station]["dtw_lc_recall"] = compute_statistics(dtw_detections, low_conf_flows)['recall']
+        te_lower_conf_recall_dict[station]["dtw_mc_recall"] = compute_statistics(dtw_detections, med_conf_flows)['recall']
+    except:
+        te_lower_conf_recall_dict[station]["dtw_lc_recall"] = 0.0
+        te_lower_conf_recall_dict[station]["dtw_mc_recall"] = 0.0
+
+
+print(f"\n===== Training Lower Confidence Recall =====\n")
+df = pd.DataFrame(tr_lower_conf_recall_dict).T
+overall = np.zeros(df.shape[1])
+overall[0] = df["#_low_conf"].sum()
+overall[1] = df["#_med_conf"].sum()
+overall[2:] = df.iloc[:, 2:].mean(axis=0).values
+df.loc["overall"] = overall
+print(df.round(2))
+
+print(f"\n===== Testing Lower Confidence Recall =====\n")
+df = pd.DataFrame(te_lower_conf_recall_dict).T
+df = df.iloc[:,[0,1,2,4,6,3,5,7]]
+overall = np.zeros(df.shape[1])
+overall[0] = df["#_low_conf"].sum()
+overall[1] = df["#_med_conf"].sum()
+overall[2:] = df.iloc[:, 2:].mean(axis=0).values
+df.loc["overall"] = overall
+print(df.round(2))
+
+
+if_params_tab = {}
+slta_params_tab = {}
+
+filename = "../output/XP/if/segments/trigger_params.json"
+
+with open(filename, "r") as f:
+    if_trigger_params = json.load(f)
+
+if_params_tab["onset_thres"] = [i["onset_thres"] for i in if_trigger_params]
+if_params_tab["offset_thres"] = [i["offset_thres"] for i in if_trigger_params]
+
+filename = "../output/XP/if/detections/threshold_params.json"
+
+with open(filename, "r") as f:
+    if_threshold_params = json.load(f)
+
+if_params_tab["if-thres"] = [i["score_thres"] for i in if_threshold_params]
+if_params_tab["if-mdl"] = [i["min_len"]/60 for i in if_threshold_params]
+
+filename = "../output/XP/if_dtw/detections/threshold_params.json"
+
+with open(filename, "r") as f:
+    dtw_threshold_params = json.load(f)
+
+if_params_tab["dtw-thres"] = [i["score_thres"] for i in dtw_threshold_params]
+if_params_tab["dtw-mdl"] = [i["min_len"]/60 for i in dtw_threshold_params]
+
+print(f"\n===== IF and IF-DTW Params =====\n")
+print(pd.DataFrame(if_params_tab).round(2))
+
+filename = "../output/XP/sta_lta/segments/trigger_params.json"
+
+with open(filename, "r") as f:
+    slta_trigger_params = json.load(f)
+
+slta_params_tab["onset_thres"] = [i["onset_thres"] for i in slta_trigger_params]
+slta_params_tab ["offset_thres"] = [i["offset_thres"] for i in slta_trigger_params]
+slta_params_tab["sw"] = [i["sw"] / 100 / 60 for i in slta_trigger_params]
+slta_params_tab ["lw"] = [i["lw"] /100 / 60 for i in slta_trigger_params]
+
+filename = "../output/XP/sta_lta/detections/threshold_params.json"
+
+with open(filename, "r") as f:
+    slta_threshold_params = json.load(f)
+
+slta_params_tab["thres"] = [i["score_thres"] for i in slta_threshold_params]
+slta_params_tab["mdl"] = [i["min_len"]/60 for i in slta_threshold_params]
+
+print(f"\n===== STA-LTA Params =====\n")
+print(pd.DataFrame(slta_params_tab).round(2))
