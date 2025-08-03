@@ -131,3 +131,59 @@ def find_unconfirmed_fp(detections, station_flows, confirmed_fp, station, source
         fp.insert(0, "station", np.repeat(station, len(fp)))
         fp.insert(len(fp.columns), "source", np.repeat(source, len(fp)))
     return fp
+
+
+def compute_lower_conf_recall(
+    sta_lta_detections, if_detections, dtw_detections, lower_conf_flows
+):
+    output = {}
+
+    med_conf_flows = lower_conf_flows[
+        lower_conf_flows["confidence"] == "med"
+    ].reset_index(drop=True)
+    low_conf_flows = lower_conf_flows[
+        lower_conf_flows["confidence"] == "low"
+    ].reset_index(drop=True)
+
+    output["#_low_conf"] = len(low_conf_flows)
+    output["#_med_conf"] = len(med_conf_flows)
+
+    try:
+        output["sta_lta_lc_recall"] = compute_statistics(
+            sta_lta_detections, low_conf_flows
+        )["recall"]
+    except Exception:
+        output["sta_lta_lc_recall"] = 0.0
+    try:
+        output["if_lc_recall"] = compute_statistics(if_detections, low_conf_flows)[
+            "recall"
+        ]
+    except Exception:
+        output["if_lc_recall"] = 0.0
+    try:
+        output["dtw_lc_recall"] = compute_statistics(dtw_detections, low_conf_flows)[
+            "recall"
+        ]
+    except Exception:
+        output["dtw_lc_recall"] = 0.0
+
+    try:
+        output["sta_lta_mc_recall"] = compute_statistics(
+            sta_lta_detections, med_conf_flows
+        )["recall"]
+    except Exception:
+        output["sta_lta_mc_recall"] = 0.0
+    try:
+        output["if_mc_recall"] = compute_statistics(if_detections, med_conf_flows)[
+            "recall"
+        ]
+    except Exception:
+        output["if_mc_recall"] = 0.0
+    try:
+        output["dtw_mc_recall"] = compute_statistics(dtw_detections, med_conf_flows)[
+            "recall"
+        ]
+    except Exception:
+        output["dtw_mc_recall"] = 0.0
+
+    return output

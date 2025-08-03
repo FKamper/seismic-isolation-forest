@@ -8,7 +8,7 @@ from joblib import dump, load
 from seismicif.datamod.loading_utils import find_paths, preproc_flow_annotations, extract_split_flows, extract_valid_segments
 from seismicif.datamod.trigger_utils import stream_trigger_detections
 from seismicif.isolation_forest import train_if, compute_scores, create_if_stream
-from seismicif.metrics import iou, compute_statistics, find_unconfirmed_fp
+from seismicif.metrics import iou, compute_statistics, find_unconfirmed_fp, compute_lower_conf_recall
 
 stations = ["ILL11","ILL12","ILL13","ILL14","ILL15","ILL16","ILL17","ILL18"]
 tr_start, tr_stop, te_start, te_stop = 2018, 2020, 2021, 2022
@@ -25,6 +25,43 @@ flows = flows[["2022-09-08" not in str(i) for i in flows["start"]]].reset_index(
 all_detections = {}
 tr_metrics = {}
 te_metrics = {}
+
+#Todo: Move to metrics/utils.py and fix corresponding circular import arising from extract_valid_segments
+def compute_station_metrics(
+    sta_lta_detections,
+    if_detections,
+    dtw_detections,
+    lower_conf_flows,
+    high_conf_flows,
+):
+    """
+    Compute metrics for the mining methods for a given station.
+    """
+
+    valid_detections = extract_valid_segments(
+        sta_lta_detections, lower_conf_flows, high_conf_flows
+    )
+    sta_lta_metrics = compute_statistics(valid_detections, high_conf_flows)
+    valid_detections = extract_valid_segments(
+        if_detections, lower_conf_flows, high_conf_flows
+    )
+    if_metrics = compute_statistics(valid_detections, high_conf_flows)
+    valid_detections = extract_valid_segments(
+        dtw_detections, lower_conf_flows, high_conf_flows
+    )
+    dtw_metrics = compute_statistics(valid_detections, high_conf_flows)
+
+    return {
+        "sta_lta_iou": f"{np.round(sta_lta_metrics['iou'], 2)}",
+        "if_iou": f"{np.round(if_metrics['iou'], 2)}",
+        "dtw_iou": f"{np.round(dtw_metrics['iou'], 2)}",
+        "sta_lta_recall": f"{np.round(sta_lta_metrics['recall'], 2)} ({sta_lta_metrics['FN']})",
+        "if_recall": f"{np.round(if_metrics['recall'], 2)} ({if_metrics['FN']})",
+        "dtw_recall": f"{np.round(dtw_metrics['recall'], 2)} ({dtw_metrics['FN']})",
+        "sta_lta_precision": f"{np.round(sta_lta_metrics['precision'], 2)} ({sta_lta_metrics['FP']})",
+        "if_precision": f"{np.round(if_metrics['precision'], 2)} ({if_metrics['FP']})",
+        "dtw_precision": f"{np.round(dtw_metrics['precision'], 2)} ({dtw_metrics['FP']})",
+    }
 
 #collect all detections
 for station in stations:
@@ -98,55 +135,18 @@ if len(te_unconfirmed_fp) > 0:
     te_unconfirmed_fp.to_csv("../catalogs/XP/te_unconfirmed_fp.csv", index=False)
     sys.exit("Unconfirmed false positives found in testing detections. Please check the output file: ../catalogs/XP/te_unconfirmed_fp.csv")
 
-
-
 for station in stations:
     sta_lta_detections = all_detections[station]["tr_detections"]["sta_lta"]
     if_detections = all_detections[station]["tr_detections"]["if"]
     dtw_detections = all_detections[station]["tr_detections"]["dtw"]
-    tr_metrics[station] = {}
-    tr_lower_conf_flows, tr_high_conf_flows,_ = extract_split_flows(flows,station,tr_start,tr_stop)
-
-    valid_detections = extract_valid_segments(sta_lta_detections,tr_lower_conf_flows,tr_high_conf_flows)
-    sta_lta_metrics = compute_statistics(valid_detections,tr_high_conf_flows)
-    valid_detections = extract_valid_segments(if_detections,tr_lower_conf_flows,tr_high_conf_flows)
-    if_metrics = compute_statistics(valid_detections,tr_high_conf_flows)
-    valid_detections = extract_valid_segments(dtw_detections,tr_lower_conf_flows,tr_high_conf_flows)
-    dtw_metrics = compute_statistics(valid_detections,tr_high_conf_flows)
-
-    tr_metrics[station]["sta_lta_iou"] = f"{np.round(sta_lta_metrics['iou'],2)}"
-    tr_metrics[station]["if_iou"] = f"{np.round(if_metrics['iou'],2)}"
-    tr_metrics[station]["dtw_iou"] = f"{np.round(dtw_metrics['iou'],2)}"
-    tr_metrics[station]["sta_lta_recall"] = f"{np.round(sta_lta_metrics['recall'],2)} ({sta_lta_metrics['FN']})"
-    tr_metrics[station]["if_recall"] = f"{np.round(if_metrics['recall'],2)} ({if_metrics['FN']})"
-    tr_metrics[station]["dtw_recall"] = f"{np.round(dtw_metrics['recall'],2)} ({dtw_metrics['FN']})"
-    tr_metrics[station]["sta_lta_precision"] = f"{np.round(sta_lta_metrics['precision'],2)} ({sta_lta_metrics['FP']})"
-    tr_metrics[station]["if_precision"] = f"{np.round(if_metrics['precision'],2)} ({if_metrics['FP']})"
-    tr_metrics[station]["dtw_precision"] = f"{np.round(dtw_metrics['precision'],2)} ({dtw_metrics['FP']})"
+    lower_conf_flows, high_conf_flows, _ = extract_split_flows(flows, station, tr_start, tr_stop)
+    tr_metrics[station] =  compute_station_metrics(sta_lta_detections, if_detections, dtw_detections, lower_conf_flows, high_conf_flows)
 
     sta_lta_detections = all_detections[station]["te_detections"]["sta_lta"]
     if_detections = all_detections[station]["te_detections"]["if"]
     dtw_detections = all_detections[station]["te_detections"]["dtw"]
-    te_metrics[station] = {}
-    te_lower_conf_flows, te_high_conf_flows,_ = extract_split_flows(flows,station,te_start,te_stop)
-
-    valid_detections = extract_valid_segments(sta_lta_detections,te_lower_conf_flows,te_high_conf_flows)
-    sta_lta_metrics = compute_statistics(valid_detections,te_high_conf_flows)
-    valid_detections = extract_valid_segments(if_detections,te_lower_conf_flows,te_high_conf_flows)
-    if_metrics = compute_statistics(valid_detections,te_high_conf_flows)
-    valid_detections = extract_valid_segments(dtw_detections,te_lower_conf_flows,te_high_conf_flows)
-    dtw_metrics = compute_statistics(valid_detections,te_high_conf_flows)
-
-    te_metrics[station]["sta_lta_iou"] = f"{np.round(sta_lta_metrics['iou'],2)}"
-    te_metrics[station]["if_iou"] = f"{np.round(if_metrics['iou'],2)}"
-    te_metrics[station]["dtw_iou"] = f"{np.round(dtw_metrics['iou'],2)}"
-    te_metrics[station]["sta_lta_recall"] = f"{np.round(sta_lta_metrics['recall'],2)} ({sta_lta_metrics['FN']})"
-    te_metrics[station]["if_recall"] = f"{np.round(if_metrics['recall'],2)} ({if_metrics['FN']})"
-    te_metrics[station]["dtw_recall"] = f"{np.round(dtw_metrics['recall'],2)} ({dtw_metrics['FN']})"
-    te_metrics[station]["sta_lta_precision"] = f"{np.round(sta_lta_metrics['precision'],2)} ({sta_lta_metrics['FP']})"
-    te_metrics[station]["if_precision"] = f"{np.round(if_metrics['precision'],2)} ({if_metrics['FP']})"
-    te_metrics[station]["dtw_precision"] = f"{np.round(dtw_metrics['precision'],2)} ({dtw_metrics['FP']})"
-
+    lower_conf_flows, high_conf_flows, _ = extract_split_flows(flows, station, te_start, te_stop)
+    te_metrics[station] = compute_station_metrics(sta_lta_detections, if_detections, dtw_detections, lower_conf_flows, high_conf_flows)
 
 print(f"\n===== Training Metrics =====\n")
 print(pd.DataFrame(tr_metrics).T)
@@ -157,59 +157,18 @@ print(pd.DataFrame(te_metrics).T)
 tr_lower_conf_recall_dict = {}
 te_lower_conf_recall_dict = {}
 for station in stations:
-    tr_lower_conf_recall_dict[station] = {}
-    tr_lower_conf_flows, tr_high_conf_flows,_ = extract_split_flows(flows,station,tr_start,tr_stop)
-    med_conf_flows = tr_lower_conf_flows[tr_lower_conf_flows["confidence"] == "med"].reset_index(drop=True)
-    low_conf_flows = tr_lower_conf_flows[tr_lower_conf_flows["confidence"] == "low"].reset_index(drop=True)
-
-    tr_lower_conf_recall_dict[station]["#_low_conf"] = len(low_conf_flows)
-    tr_lower_conf_recall_dict[station]["#_med_conf"] = len(med_conf_flows)
-
+    #tr_lower_conf_recall_dict[station] = {}
+    lower_conf_flows, _,_ = extract_split_flows(flows,station,tr_start,tr_stop)
     sta_lta_detections = all_detections[station]["tr_detections"]["sta_lta"]
     if_detections = all_detections[station]["tr_detections"]["if"]
     dtw_detections = all_detections[station]["tr_detections"]["dtw"]
+    tr_lower_conf_recall_dict[station] = compute_lower_conf_recall(sta_lta_detections, if_detections, dtw_detections, lower_conf_flows)
 
-    tr_lower_conf_recall_dict[station]["sta_lta_lc_recall"] = compute_statistics(sta_lta_detections, low_conf_flows)['recall']
-    tr_lower_conf_recall_dict[station]["if_lc_recall"] = compute_statistics(if_detections, low_conf_flows)['recall']
-    tr_lower_conf_recall_dict[station]["dtw_lc_recall"] = compute_statistics(dtw_detections, low_conf_flows)['recall']
-
-    tr_lower_conf_recall_dict[station]["sta_lta_mc_recall"] = compute_statistics(sta_lta_detections, med_conf_flows)['recall']
-    tr_lower_conf_recall_dict[station]["if_mc_recall"] = compute_statistics(if_detections, med_conf_flows)['recall']
-    tr_lower_conf_recall_dict[station]["dtw_mc_recall"] = compute_statistics(dtw_detections, med_conf_flows)['recall']
-
-    te_lower_conf_recall_dict[station] = {}
-    te_lower_conf_flows, te_high_conf_flows,_ = extract_split_flows(flows,station,te_start,te_stop)
-    med_conf_flows = te_lower_conf_flows[te_lower_conf_flows["confidence"] == "med"].reset_index(drop=True)
-    low_conf_flows = te_lower_conf_flows[te_lower_conf_flows["confidence"] == "low"].reset_index(drop=True)
-
-    te_lower_conf_recall_dict[station]["#_low_conf"] = len(low_conf_flows)
-    te_lower_conf_recall_dict[station]["#_med_conf"] = len(med_conf_flows)
-
+    lower_conf_flows, _ , _ = extract_split_flows(flows,station,te_start,te_stop)
     sta_lta_detections = all_detections[station]["te_detections"]["sta_lta"]
     if_detections = all_detections[station]["te_detections"]["if"]
     dtw_detections = all_detections[station]["te_detections"]["dtw"]
-
-    try:
-        te_lower_conf_recall_dict[station]["sta_lta_lc_recall"] = compute_statistics(sta_lta_detections, low_conf_flows)['recall']
-        te_lower_conf_recall_dict[station]["sta_lta_mc_recall"] = compute_statistics(sta_lta_detections, med_conf_flows)['recall']
-    except:
-        te_lower_conf_recall_dict[station]["sta_lta_lc_recall"] = 0.0
-        te_lower_conf_recall_dict[station]["sta_lta_mc_recall"] = 0.0
-
-    try:
-        te_lower_conf_recall_dict[station]["if_lc_recall"] = compute_statistics(if_detections, low_conf_flows)['recall']
-        te_lower_conf_recall_dict[station]["if_mc_recall"] = compute_statistics(if_detections, med_conf_flows)['recall']
-    except:
-        te_lower_conf_recall_dict[station]["if_lc_recall"] = 0.0
-        te_lower_conf_recall_dict[station]["if_mc_recall"] = 0.0
-
-    try:
-        te_lower_conf_recall_dict[station]["dtw_lc_recall"] = compute_statistics(dtw_detections, low_conf_flows)['recall']
-        te_lower_conf_recall_dict[station]["dtw_mc_recall"] = compute_statistics(dtw_detections, med_conf_flows)['recall']
-    except:
-        te_lower_conf_recall_dict[station]["dtw_lc_recall"] = 0.0
-        te_lower_conf_recall_dict[station]["dtw_mc_recall"] = 0.0
-
+    te_lower_conf_recall_dict[station] = compute_lower_conf_recall(sta_lta_detections, if_detections, dtw_detections, lower_conf_flows)
 
 print(f"\n===== Training Lower Confidence Recall =====\n")
 df = pd.DataFrame(tr_lower_conf_recall_dict).T
@@ -222,7 +181,6 @@ print(df.round(2))
 
 print(f"\n===== Testing Lower Confidence Recall =====\n")
 df = pd.DataFrame(te_lower_conf_recall_dict).T
-df = df.iloc[:,[0,1,2,4,6,3,5,7]]
 overall = np.zeros(df.shape[1])
 overall[0] = df["#_low_conf"].sum()
 overall[1] = df["#_med_conf"].sum()
@@ -230,6 +188,7 @@ overall[2:] = df.iloc[:, 2:].mean(axis=0).values
 df.loc["overall"] = overall
 print(df.round(2))
 
+#print out mining method selected parameters
 
 if_params_tab = {}
 slta_params_tab = {}
