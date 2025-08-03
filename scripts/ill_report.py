@@ -5,10 +5,10 @@ import obspy
 import sys
 import json
 from joblib import dump, load
-from seismicif.datamod.loading_utils import find_paths, preproc_flow_annotations, extract_split_flows, extract_valid_segments
+from seismicif.datamod.loading_utils import find_paths, preproc_flow_annotations, extract_split_flows
 from seismicif.datamod.trigger_utils import stream_trigger_detections
 from seismicif.isolation_forest import train_if, compute_scores, create_if_stream
-from seismicif.metrics import iou, compute_statistics, find_unconfirmed_fp, compute_lower_conf_recall
+from seismicif.metrics import iou, compute_statistics, find_unconfirmed_fp, compute_lower_conf_recall, extract_valid_segments, compute_station_metrics
 
 stations = ["ILL11","ILL12","ILL13","ILL14","ILL15","ILL16","ILL17","ILL18"]
 tr_start, tr_stop, te_start, te_stop = 2018, 2020, 2021, 2022
@@ -25,43 +25,6 @@ flows = flows[["2022-09-08" not in str(i) for i in flows["start"]]].reset_index(
 all_detections = {}
 tr_metrics = {}
 te_metrics = {}
-
-#Todo: Move to metrics/utils.py and fix corresponding circular import arising from extract_valid_segments
-def compute_station_metrics(
-    sta_lta_detections,
-    if_detections,
-    dtw_detections,
-    lower_conf_flows,
-    high_conf_flows,
-):
-    """
-    Compute metrics for the mining methods for a given station.
-    """
-
-    valid_detections = extract_valid_segments(
-        sta_lta_detections, lower_conf_flows, high_conf_flows
-    )
-    sta_lta_metrics = compute_statistics(valid_detections, high_conf_flows)
-    valid_detections = extract_valid_segments(
-        if_detections, lower_conf_flows, high_conf_flows
-    )
-    if_metrics = compute_statistics(valid_detections, high_conf_flows)
-    valid_detections = extract_valid_segments(
-        dtw_detections, lower_conf_flows, high_conf_flows
-    )
-    dtw_metrics = compute_statistics(valid_detections, high_conf_flows)
-
-    return {
-        "sta_lta_iou": f"{np.round(sta_lta_metrics['iou'], 2)}",
-        "if_iou": f"{np.round(if_metrics['iou'], 2)}",
-        "dtw_iou": f"{np.round(dtw_metrics['iou'], 2)}",
-        "sta_lta_recall": f"{np.round(sta_lta_metrics['recall'], 2)} ({sta_lta_metrics['FN']})",
-        "if_recall": f"{np.round(if_metrics['recall'], 2)} ({if_metrics['FN']})",
-        "dtw_recall": f"{np.round(dtw_metrics['recall'], 2)} ({dtw_metrics['FN']})",
-        "sta_lta_precision": f"{np.round(sta_lta_metrics['precision'], 2)} ({sta_lta_metrics['FP']})",
-        "if_precision": f"{np.round(if_metrics['precision'], 2)} ({if_metrics['FP']})",
-        "dtw_precision": f"{np.round(dtw_metrics['precision'], 2)} ({dtw_metrics['FP']})",
-    }
 
 #collect all detections
 for station in stations:

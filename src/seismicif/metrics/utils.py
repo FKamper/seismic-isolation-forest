@@ -133,6 +133,55 @@ def find_unconfirmed_fp(detections, station_flows, confirmed_fp, station, source
     return fp
 
 
+def extract_valid_segments(segments, lower_conf_flows, high_conf_flows):
+    if len(segments) == 0:
+        return segments
+
+    intersections, _, _ = iou(segments, lower_conf_flows)
+    non_lower_conf = np.append(intersections[0], np.diff(intersections)) == 0
+    intersections, _, _ = iou(segments, high_conf_flows)
+    high_conf = np.append(intersections[0], np.diff(intersections)) > 0
+
+    return segments[non_lower_conf | high_conf].reset_index(drop=True)
+
+
+def compute_station_metrics(
+    sta_lta_detections,
+    if_detections,
+    dtw_detections,
+    lower_conf_flows,
+    high_conf_flows,
+):
+    """
+    Compute metrics for the mining methods for a given station.
+    """
+
+    valid_detections = extract_valid_segments(
+        sta_lta_detections, lower_conf_flows, high_conf_flows
+    )
+    sta_lta_metrics = compute_statistics(valid_detections, high_conf_flows)
+    valid_detections = extract_valid_segments(
+        if_detections, lower_conf_flows, high_conf_flows
+    )
+    if_metrics = compute_statistics(valid_detections, high_conf_flows)
+    valid_detections = extract_valid_segments(
+        dtw_detections, lower_conf_flows, high_conf_flows
+    )
+    dtw_metrics = compute_statistics(valid_detections, high_conf_flows)
+
+    return {
+        "sta_lta_iou": f"{np.round(sta_lta_metrics['iou'], 2)}",
+        "if_iou": f"{np.round(if_metrics['iou'], 2)}",
+        "dtw_iou": f"{np.round(dtw_metrics['iou'], 2)}",
+        "sta_lta_recall": f"{np.round(sta_lta_metrics['recall'], 2)} ({sta_lta_metrics['FN']})",
+        "if_recall": f"{np.round(if_metrics['recall'], 2)} ({if_metrics['FN']})",
+        "dtw_recall": f"{np.round(dtw_metrics['recall'], 2)} ({dtw_metrics['FN']})",
+        "sta_lta_precision": f"{np.round(sta_lta_metrics['precision'], 2)} ({sta_lta_metrics['FP']})",
+        "if_precision": f"{np.round(if_metrics['precision'], 2)} ({if_metrics['FP']})",
+        "dtw_precision": f"{np.round(dtw_metrics['precision'], 2)} ({dtw_metrics['FP']})",
+    }
+
+
 def compute_lower_conf_recall(
     sta_lta_detections, if_detections, dtw_detections, lower_conf_flows
 ):
