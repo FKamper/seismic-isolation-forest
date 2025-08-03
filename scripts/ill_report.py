@@ -181,7 +181,9 @@ if_params_tab["dtw-thres"] = [i["score_thres"] for i in dtw_threshold_params]
 if_params_tab["dtw-mdl"] = [i["min_len"]/60 for i in dtw_threshold_params]
 
 print(f"\n===== IF and IF-DTW Params =====\n")
-print(pd.DataFrame(if_params_tab).round(2))
+if_params_tab = pd.DataFrame(if_params_tab).round(2)
+if_params_tab.index = stations
+print(if_params_tab )
 
 filename = "../output/XP/sta_lta/segments/trigger_params.json"
 
@@ -202,4 +204,6 @@ slta_params_tab["thres"] = [i["score_thres"] for i in slta_threshold_params]
 slta_params_tab["mdl"] = [i["min_len"]/60 for i in slta_threshold_params]
 
 print(f"\n===== STA-LTA Params =====\n")
-print(pd.DataFrame(slta_params_tab).round(2))
+slta_params_tab = pd.DataFrame(slta_params_tab).round(2)
+slta_params_tab.index = stations
+print(slta_params_tab)
