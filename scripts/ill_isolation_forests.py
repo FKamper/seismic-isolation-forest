@@ -4,10 +4,10 @@ import pandas as pd
 import obspy
 from joblib import dump, load
 import json
-from seismicif.datamod.loading_utils import find_paths, preproc_flow_annotations, extract_split_flows, extract_valid_segments
+from seismicif.datamod.loading_utils import find_paths, preproc_flow_annotations, extract_split_flows
 from seismicif.datamod.trigger_utils import stream_trigger_detections
 from seismicif.isolation_forest import train_if, compute_scores, create_if_stream
-from seismicif.metrics import iou, est_thresholds
+from seismicif.metrics import iou, est_thresholds, extract_valid_segments
 
 
 tr_start, tr_stop, te_start, te_stop = 2018, 2020, 2021, 2022

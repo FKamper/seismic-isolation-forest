@@ -15,11 +15,10 @@ from seismicif.datamod.loading_utils import (
     remove_overlaps,
     find_paths,
     extract_split_flows,
-    extract_valid_segments,
 )
 from seismicif.datamod.preproc_utils import preproc_stream
 from seismicif.sta_lta import slta_compute_iou, slta_detections_from_paths
-from seismicif.metrics import est_thresholds
+from seismicif.metrics import est_thresholds, extract_valid_segments
 
 tr_start, tr_stop, te_start, te_stop = 2018, 2020, 2021, 2022
 network = "XP"

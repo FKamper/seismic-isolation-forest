@@ -5,10 +5,10 @@ import obspy
 import json
 from joblib import dump, load
 from tqdm import tqdm
-from seismicif.datamod.loading_utils import find_paths, preproc_flow_annotations, extract_split_flows, extract_valid_segments, extract_template
+from seismicif.datamod.loading_utils import find_paths, preproc_flow_annotations, extract_split_flows, extract_template
 from seismicif.datamod.trigger_utils import stream_trigger_detections
 from seismicif.dtw import template_dtw
-from seismicif.metrics import iou, est_thresholds
+from seismicif.metrics import iou, est_thresholds, extract_valid_segments
 from multiprocessing import Pool
 from functools import partial
 
