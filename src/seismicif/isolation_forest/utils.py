@@ -13,6 +13,26 @@ from datetime import timedelta
 
 
 def train_if(stream_paths, norm=False, preproc=True, if_mod=None, max_val=np.inf):
+    """
+    Trains an Isolation Forest model to a collection of seismic data streams. An IF tree is trained
+    to sliding windows extracted from each miniseed recording, after preprocessing.
+    Parameters
+    ----------
+    stream_paths : array-like
+        Array of file paths to seismic data streams.
+    norm : bool, optional
+        If True, normalize each stream before training. Default is False.
+    preproc : bool, optional
+        If True, apply preprocessing to each stream before training. Default is True.
+    if_mod : sklearn.ensemble.IsolationForest or None, optional
+        An existing Isolation Forest model to continue training. If None, a new model is created. Default is None.
+    max_val : float, optional
+        Maximum allowed value in a miniseed recording. Streams with values exceeding this are skipped. Default is np.inf.
+    Returns
+    -------
+    if_mod : sklearn.ensemble.IsolationForest
+        The trained Isolation Forest model.
+    """
     if if_mod is None:
         if_mod = IF(
             n_estimators=0, max_features=1.0, warm_start=True, n_jobs=16, random_state=0
@@ -41,8 +61,50 @@ def train_if(stream_paths, norm=False, preproc=True, if_mod=None, max_val=np.inf
 
 
 def compute_scores(
-    stream_paths, if_mod, norm=False, preproc=True, max_val=np.inf, stride_frac=0.5
+    stream_paths,
+    if_mod,
+    norm=False,
+    preproc=True,
+    max_val=np.inf,
+    window_size=10000,
+    stride_frac=0.5,
 ):
+    """
+    Computes anomaly scores for seismic data streams using an Isolation Forest model and
+    returns a sorted DataFrame by time.
+    Parameters
+    ----------
+    stream_paths : array-like
+        Array of file paths to seismic data streams.
+    norm : bool, optional
+        If True, normalize each stream before training. Default is False.
+    preproc : bool, optional
+        If True, apply preprocessing to each stream before training. Default is True.
+    if_mod : sklearn.ensemble.IsolationForest or None, optional
+        An existing Isolation Forest model to continue training. If None, a new model is created. Default is None.
+    max_val : float, optional
+        Maximum allowed value in a miniseed recording. Streams with values exceeding this are skipped. Default is np.inf.
+    window_size : int, optional
+        Number of samples in each window. Default is 10,000.
+    stride_frac : float, optional
+        Number of samples to move the window at each step expressed as a fraction of the window size. Default = 0.5.
+    Returns
+    -------
+    scores_df : pandas.DataFrame
+        DataFrame containing the following columns:
+            - 'start': Start time of each window.
+            - 'stop': Stop time of each window.
+            - 'anomaly_score': Anomaly score for each window (negative Isolation Forest score).
+            - 'std': Standard deviation of each window.
+    Notes
+    -----
+    - Streams are optionally preprocessed and normalized.
+    - Duplicate and overlapping traces are removed.
+    - Overlaps between subsequent miniseed recordings are removed.
+    - Sliding windows are extracted from each stream for scoring.
+    - Streams with no valid windows or exceeding `max_val` are skipped.
+    - The function concatenates results from all streams and sorts them by start time.
+    """
     scores = []
     times = []
     stdevs = []
@@ -70,7 +132,9 @@ def compute_scores(
             st[0].data = np.append(res_tr.data, st[0].data)
             st[0].stats.starttime = res_tr.stats.starttime
 
-        X, T = sliding_windows_from_stream(st)
+        X, T = sliding_windows_from_stream(
+            st, window_size=window_size, stride=int(stride_frac * window_size)
+        )
         if X.shape[0] == 0:
             continue
 
@@ -104,6 +168,26 @@ def compute_scores(
 
 
 def create_if_stream(scores_df, station="?", sr=0.02, network="?"):
+    """
+    Creates an ObsPy Stream object from a DataFrame of scores, grouping consecutive scores into traces.
+    Parameters
+    ----------
+    scores_df : pandas.DataFrame
+        The first column should be timestamps, and the third column should be scores.
+    station : str, optional
+        Station code to assign to each trace (default is "?").
+    sr : float, optional
+        Sampling rate in Hz for the traces (default is 0.02).
+    network : str, optional
+        Network code to assign to each trace (default is "?").
+    Returns
+    ----------
+    obspy.Stream
+        An ObsPy Stream object containing traces of scores grouped by consecutive timestamps.
+    Notes
+    ----------
+    To do: Refer to columns by name rather than index.
+    """
     if_stream = obspy.Stream()
     j = 0
 
