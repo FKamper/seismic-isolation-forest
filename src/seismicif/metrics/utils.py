@@ -3,6 +3,31 @@ import pandas as pd
 
 
 def iou(df, flows):
+    """
+    Calculates the intersection and union durations between time segments contained in two DataFrames.
+    Parameters
+    ----------
+    df: pd.DataFrame
+        DataFrame containing 'start' and 'stop' timestamps describing the segments.
+    flows:  pd.DataFrame
+        DataFrame containing 'start' and 'stop' timestamps describing the reference segments.
+    Returns:
+    ----------
+    tuple:
+        intersection: np.ndarray
+            Cumulative intersection durations.
+        union:  np.ndarray
+            Cumulative union durations.
+        flow_len: float
+            Total duration of all segments in `flows`.
+    Notes:
+    ----------
+        - The function assumes that 'start' and 'stop' columns are present in both DataFrames.
+        - Time intervals are expected to be convertible to pandas Timestamps.
+        - The intersection is computed as the overlapping duration between segments in `df` and `flows`.
+        - The union is computed as the total duration covered by segments in `df` and `flows`, minus the intersection.
+        - Segments in both DataFrames must be mutually exclusive.
+    """
     intersection = np.zeros(df.shape[0])
     union = np.zeros(df.shape[0])
 
@@ -35,6 +60,27 @@ def iou(df, flows):
 
 
 def est_thresholds(df, gt, mode="lower"):
+    """
+    Estimate score threshold and minimum detection length by maximizing the IoU between segments
+    contained in the df and gt DataFrames.
+    This function computes detection lengths, filters detections by increasing length thresholds, and determines the score threshold
+    leading to the maximum IoU for each subset. The function returns the maximum IoU score achieved over all subsets, the corresponding
+    detection length, and the associated score threshold.
+    Parameters
+    ----------
+    df: pd.DataFrame
+        DataFrame containing detections.
+    gt: pd.DataFrame
+        DataFrame containing ground truth (debris-flow) segments.
+    mode: str, optional:
+        Determines if detections should be kept if scores > score threshold or otherwise. Default is "lower".
+    Returns:
+    ----------
+    tuple:
+        - float: Maximum IoU score achieved.
+        - float: Detection length threshold corresponding to the maximum IoU.
+        - float: Score threshold associated with the maximum IoU.
+    """
     df = df.reset_index(drop=True)
 
     start_times = np.array([pd.to_datetime(str(i)) for i in df["start"]])
@@ -73,6 +119,29 @@ def est_thresholds(df, gt, mode="lower"):
 
 
 def compute_statistics(detections, gt):
+    """
+    Computes evaluation metrics for detection results against ground truth segments.
+    Parameters
+    ----------
+    detections : pd.DataFrame
+        DataFrame containing detections.
+    gt: pd.DataFrame
+        DataFrame containing ground truth (debris-flow) segments.
+    Returns
+    ----------
+    dict
+        Dictionary containing the following metrics:
+            - "iou": Intersection over Union (IoU) percentage.
+            - "recall": Recall percentage of ground-truth segments.
+            - "FN": Number of ground-truth segments not in detections.
+            - "precision": Precision percentage of detections.
+            - "FP": Number of detections not in ground-truth segments.
+            - "TP": Number of ground-truth segments in detections.
+    Notes
+    ----------
+    If no detections are provided, IoU and precision are set to NaN, recall is 0,
+    and all ground-truth segments are counted as false negatives.
+    """
     if len(detections) == 0:
         return {
             "iou": np.nan,
@@ -105,6 +174,22 @@ def compute_statistics(detections, gt):
 
 
 def find_fp_fn(df, gt):
+    """
+    Identifies false positives (FP) and false negatives (FN) in DataFrames df and gt respectively.
+    Parameters
+    ----------
+    df: pd.DataFrame
+        DataFrame containing detections.
+    gt: pd.DataFrame
+        DataFrame containing ground truth (debris-flow) segments.
+    Returns:
+    ----------
+    tuple:
+        FP: pd.DataFrame
+            DataFrame of false positive segments.
+        FN: pd.DataFrame
+            DataFrame of false negative segments.
+    """
     if len(df) == 0:
         FP = pd.DataFrame([])
         FN = gt
@@ -124,6 +209,24 @@ def find_fp_fn(df, gt):
 
 
 def find_unconfirmed_fp(detections, station_flows, confirmed_fp, station, source):
+    """
+    Identifies unconfirmed false positives (FP) in detections, i.e. false positives in detections that have not been labeled.
+    Parameters
+    ----------
+    detections: pd.DataFrame
+        DataFrame containing detected segments.
+    station_flows: pd.DataFrame
+        DataFrame containing debris-flow segments for the station.
+    confirmed_fp: pd.DataFrame
+        DataFrame of confirmed false positives for the station.
+    station: str
+        Name or identifier of the station.
+    source: str
+        Source of detections, either "IF", "DTW", or "STA/LTA".
+    Returns:
+    ----------
+        pd.DataFrame: DataFrame of unconfirmed false positives with added station and source columns.
+    """
     fp = find_fp_fn(detections, station_flows)[0]
     fp = find_fp_fn(fp, confirmed_fp)[0]
     if len(fp) > 0:
@@ -134,6 +237,20 @@ def find_unconfirmed_fp(detections, station_flows, confirmed_fp, station, source
 
 
 def extract_valid_segments(segments, lower_conf_flows, high_conf_flows):
+    """
+    Extracts segments that do not intersect with lower confidence flows or do intersect with high confidence flows.
+    Parameters
+    ----------
+    segments: pd.DataFrame
+        DataFrame containing segments to filter.
+    lower_conf_flows: pd.DataFrame
+        DataFrame containing lower confidence segments.
+    high_conf_flows: pd.DataFrame
+        DataFrame containing high confidence segments.
+    Returns:
+    ----------
+        pd.DataFrame: Filtered DataFrame of valid segments.
+    """
     if len(segments) == 0:
         return segments
 
@@ -153,9 +270,29 @@ def compute_station_metrics(
     high_conf_flows,
 ):
     """
-    Compute metrics for the mining methods for a given station.
+    Computes evaluation metrics (IoU, recall, precision) for station-level event detections using the different mining methods.
+    Parameters
+    ----------
+    sta_lta_detections : pd.DataFrame
+        Detections made by the STA-LTA method.
+    if_detections : pd.DataFrame
+        Detections made by the IF method.
+    dtw_detections : pd.DataFrame
+        Detections made by the IF-DTW method.
+    lower_conf_flows : pd.DataFrame
+        Segments representing lower confidence debris-flow segments.
+    high_conf_flows : pd.DataFrame
+        Segments representing high confidence debris-flow segments.
+    Returns
+    ----------
+    dict
+        Dictionary containing IoU, recall, and precision metrics for each mining method.
+        The recall and precision values include the number of false negatives (FN) and false positives (FP), respectively.
+        Keys:
+            - "sta_lta_iou", "if_iou", "dtw_iou"
+            - "sta_lta_recall", "if_recall", "dtw_recall"
+            - "sta_lta_precision", "if_precision", "dtw_precision"
     """
-
     valid_detections = extract_valid_segments(
         sta_lta_detections, lower_conf_flows, high_conf_flows
     )
@@ -185,6 +322,44 @@ def compute_station_metrics(
 def compute_lower_conf_recall(
     sta_lta_detections, if_detections, dtw_detections, lower_conf_flows
 ):
+    """
+    Computes recall metrics for detection of low and medium confidence debris-flow segment using
+    the STA-LTA, IF and IF-DTW mining methods
+    Parameters
+    ----------
+    sta_lta_detections : pd.DataFrame or list
+        Detections made by the STA-LTA method.
+    if_detections : pd.DataFrame or list
+        Detections made by the IF method.
+    dtw_detections : pd.DataFrame or list
+        Detections made by the IF-DTW method.
+    lower_conf_flows : pd.DataFrame
+        DataFrame containing flows with a "confidence" column indicating "low" or "med".
+    Returns
+    ----------
+    dict
+        Dictionary with the following keys:
+            '#_low_conf' : int
+                Number of low confidence flows.
+            '#_med_conf' : int
+                Number of medium confidence flows.
+            'sta_lta_lc_recall' : float
+                Recall of STA/LTA detections on low confidence flows.
+            'if_lc_recall' : float
+                Recall of Isolation Forest detections on low confidence flows.
+            'dtw_lc_recall' : float
+                Recall of DTW detections on low confidence flows.
+            'sta_lta_mc_recall' : float
+                Recall of STA/LTA detections on medium confidence flows.
+            'if_mc_recall' : float
+                Recall of Isolation Forest detections on medium confidence flows.
+            'dtw_mc_recall' : float
+                Recall of DTW detections on medium confidence flows.
+    Notes
+    -----
+    If an exception occurs during recall computation, the recall value is set to 0.0, because
+    no detections were found for that confidence level.
+    """
     output = {}
 
     med_conf_flows = lower_conf_flows[
