@@ -4,17 +4,26 @@ import numpy as np
 
 def preproc_stream(st: obspy.Stream, taper=False, target_sr=100) -> None:
     """
-    Find and remove the response from the input obspy Stream. The response removal happens inplace,
-    so no value is returned. Pre-processing and pre-filtering is applied, as well as a tapering.
-
-    :param st: :class:`~obspy.core.Stream` object.
-    :param resp_path: Path to the response files
-    :type resp_path: str
-
-    :rtype: None
-    :return: Nothing
+    Preprocesses an ObsPy Stream object by detrending, tapering, resampling, and filtering.
+    Parameters
+    ----------
+        st: obspy.Stream
+            The seismic data stream to preprocess.
+        taper: bool, optional
+            If True, applies a taper to each trace and trims the stream edges. Default is False.
+        target_sr: int, optional
+            The target sampling rate (Hz) for resampling. Default is 100.
+    Returns:
+    ----------
+        obspy.Stream: The preprocessed seismic data stream.
+    Notes:
+    ----------
+        - Each trace is detrended (linear and demean).
+        - Tapering is applied to each trace if `taper` is True.
+        - Traces are resampled to `target_sr` if their sampling rate differs.
+        - A highpass filter (0.3 Hz) is applied to the entire stream.
+        - If `taper` is True and the stream is not empty, the stream is trimmed at both ends by 10% of its duration.
     """
-    # Loop over all traces and apply pre-processing
     for tr in st:
         tr.detrend("linear")
         tr.detrend("demean")
@@ -31,8 +40,7 @@ def preproc_stream(st: obspy.Stream, taper=False, target_sr=100) -> None:
             tr.stats.orig_sample_rate = tr.stats.sampling_rate
 
     st.filter("highpass", freq=0.3, zerophase=True)
-    # If the stream is not empty, and if the data was tapered, remove the tapered time-windows from the trace.
-    # This means the start-time is after, and the endtime before the initial start- and end-times respectively.
+
     if len(st) > 0:
         if taper:
             st.trim(
@@ -46,6 +54,20 @@ def preproc_stream(st: obspy.Stream, taper=False, target_sr=100) -> None:
 
 
 def normalize_stream(st: obspy.Stream) -> None:
+    """
+    Normalizes the data in each trace of an ObsPy Stream object.
+    The normalization is performed by subtracting the median of all trace data
+    from each data point and dividing by the mean absolute deviation from the median.
+    This operation is applied in-place to each trace in the stream.
+    Parameters
+    ----------
+    st : obspy.Stream
+        The ObsPy Stream object containing one or more traces to be normalized.
+    Returns
+    ----------
+    obspy.Stream
+        The normalized ObsPy Stream object.
+    """
     arr = np.zeros(0)
     for tr in st:
         arr = np.append(arr, tr.data)
