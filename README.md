@@ -24,12 +24,9 @@ Alternatively, if you are using an existing environment, you can install the mod
 pip install -e .
 ```
 
-## Quick Start
-
-
 ## Repository Structure
 
-* /catalogues - contains debris-flow catalogues for the Illgraben seismic network
+* /catalogues - contains catalogues for the Illgraben and Greenland seismic networks
 * /data - used to store seismic waveforms. Structure should be /data/network/year/station/channel
 * /notebooks - notebooks for lightweight illustration of source code
 * /output - storage for outputs generated
