@@ -10,27 +10,29 @@ def trace_trigger_detections(tr, onset_thres, offset_thres, lag=100):
     and offset threshold.
     Parameters:
     ----------
-        tr: obspy.Trace
-            Seismic trace object containing the signal.
-        onset_thres: float
-            Threshold value for activating the trigger.
-        offset_thres: float
-            Threshold value for deactivating the trigger.
-        lag: float, optional
-            Time added to the end time of the flagged segment.
+    tr: obspy.Trace
+        Seismic trace object containing the signal.
+    onset_thres: float
+        Threshold value for activating the trigger.
+    offset_thres: float
+        Threshold value for deactivating the trigger.
+    lag: float, optional
+        Time added to the end time of the flagged segment.
     Returns:
-        dtc: dict
-            Consists of lists:
-            - 'start' (UTCDateTime): Start times of the flagged segments.
-            - 'stop' (UTCDateTime): Stop times of the flagged segments.
-            - 'scores' (float): Maximum value of the trace data within the segment intervals.
+    ----------
+    dtc: dict
+        Consists of lists:
+        - 'start' (UTCDateTime): Start times of the flagged segments.
+        - 'stop' (UTCDateTime): Stop times of the flagged segments.
+        - 'scores' (float): Maximum value of the trace data within the segment intervals.
     Notes:
-        The lag is used to accomodate the IF trigger where:
-            - the IF anomaly score for a sliding window is given w.r.t the start of the sliding
-              window.
-            - the flagged segment is marked from the starting point of the onset window,
-              until the starting point of the offset window.
-        If the trigger flags no segments, return an empty list.
+    ----------
+    The lag is used to accomodate the IF trigger where:
+        - the IF anomaly score for a sliding window is given w.r.t the start of the sliding
+            window.
+        - the flagged segment is marked from the starting point of the onset window,
+            until the starting point of the offset window.
+    If the trigger flags no segments, return an empty list.
     """
     sr = tr.stats.sampling_rate
     dtc = []

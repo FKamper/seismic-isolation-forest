@@ -225,7 +225,7 @@ def find_unconfirmed_fp(detections, station_flows, confirmed_fp, station, source
         Source of detections, either "IF", "DTW", or "STA/LTA".
     Returns:
     ----------
-        pd.DataFrame: DataFrame of unconfirmed false positives with added station and source columns.
+    pd.DataFrame: DataFrame of unconfirmed false positives with added station and source columns.
     """
     fp = find_fp_fn(detections, station_flows)[0]
     fp = find_fp_fn(fp, confirmed_fp)[0]
@@ -249,7 +249,7 @@ def extract_valid_segments(segments, lower_conf_flows, high_conf_flows):
         DataFrame containing high confidence segments.
     Returns:
     ----------
-        pd.DataFrame: Filtered DataFrame of valid segments.
+    pd.DataFrame: Filtered DataFrame of valid segments.
     """
     if len(segments) == 0:
         return segments
@@ -337,7 +337,7 @@ def compute_lower_conf_recall(
         DataFrame containing flows with a "confidence" column indicating "low" or "med".
     Returns
     ----------
-    dict
+    dict:
         Dictionary with the following keys:
             '#_low_conf' : int
                 Number of low confidence flows.

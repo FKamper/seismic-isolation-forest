@@ -30,4 +30,5 @@ pip install -e .
 * /data - used to store seismic waveforms. Structure should be /data/network/year/station/channel
 * /notebooks - notebooks for lightweight illustration of source code
 * /output - storage for outputs generated
+* /scripts - python scripts for producing the results of the paper
 * /src - core codebase

@@ -7,22 +7,22 @@ def preproc_stream(st: obspy.Stream, taper=False, target_sr=100) -> None:
     Preprocesses an ObsPy Stream object by detrending, tapering, resampling, and filtering.
     Parameters
     ----------
-        st: obspy.Stream
-            The seismic data stream to preprocess.
-        taper: bool, optional
-            If True, applies a taper to each trace and trims the stream edges. Default is False.
-        target_sr: int, optional
-            The target sampling rate (Hz) for resampling. Default is 100.
+    st: obspy.Stream
+        The seismic data stream to preprocess.
+    taper: bool, optional
+        If True, applies a taper to each trace and trims the stream edges. Default is False.
+    target_sr: int, optional
+        The target sampling rate (Hz) for resampling. Default is 100.
     Returns:
     ----------
-        obspy.Stream: The preprocessed seismic data stream.
+    obspy.Stream: The preprocessed seismic data stream.
     Notes:
     ----------
-        - Each trace is detrended (linear and demean).
-        - Tapering is applied to each trace if `taper` is True.
-        - Traces are resampled to `target_sr` if their sampling rate differs.
-        - A highpass filter (0.3 Hz) is applied to the entire stream.
-        - If `taper` is True and the stream is not empty, the stream is trimmed at both ends by 10% of its duration.
+    - Each trace is detrended (linear and demean).
+    - Tapering is applied to each trace if `taper` is True.
+    - Traces are resampled to `target_sr` if their sampling rate differs.
+    - A highpass filter (0.3 Hz) is applied to the entire stream.
+    - If `taper` is True and the stream is not empty, the stream is trimmed at both ends by 10% of its duration.
     """
     for tr in st:
         tr.detrend("linear")

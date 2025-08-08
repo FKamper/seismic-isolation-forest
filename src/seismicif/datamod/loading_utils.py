@@ -169,11 +169,11 @@ def preproc_flow_annotations(flows):
     trailing 'Z' if present. The normalized strings are then converted to `obspy.UTCDateTime` objects.
     Parameters
     ----------
-        flows: pandas.DataFrame
-            A pandas dataframe containing 'start' and 'stop' columns containing timestamp strings.
+    flows: pandas.DataFrame
+        A pandas dataframe containing 'start' and 'stop' columns containing timestamp strings.
     Returns:
     ----------
-        pandas.DataFrame: The input dataframe with 'start' and 'stop' timestamp strings converted to `obspy.UTCDateTime` objects.
+    pandas.DataFrame: The input dataframe with 'start' and 'stop' timestamp strings converted to `obspy.UTCDateTime` objects.
     """
     start = []
     for i in flows["start"]:
@@ -207,10 +207,11 @@ def date_to_year_day(date_str):
     Converts a date string in 'YYYY-MM-DD' format to a string representing the year and the day of the year.
     Parameters
     ----------
-        date_str (str): Date string in 'YYYY-MM-DD' format.
+    date_str: str
+        Date string in 'YYYY-MM-DD' format.
     Returns:
     ----------
-        str: String in the format 'YYYY.DDD', where 'YYYY' is the year and 'DDD' is the zero-padded day of the year.
+    str: String in the format 'YYYY.DDD', where 'YYYY' is the year and 'DDD' is the zero-padded day of the year.
     """
     date = datetime.strptime(str(date_str), "%Y-%m-%d")
     year = date.year
@@ -224,11 +225,13 @@ def find_date_in_strings(strings, date_str):
     see date_to_year_day function.
     Parameters
     ----------
-        strings (list): List of strings to search.
-        date_str (str): Date string to match, which will be converted to 'year-day' format.
+    strings: list
+        List of strings to search.
+    date_str: str
+        Date string to match, which will be converted to 'year-day' format.
     Returns:
     ----------
-        list: Strings from the input list that contain the target date in 'year-day' format.
+    list: Strings from the input list that contain the target date in 'year-day' format.
     """
     target = date_to_year_day(date_str)
     return [s for s in strings if target in str(s)]
@@ -281,24 +284,24 @@ def read_segment(t0, t1, paths):
 
 def extract_template(t0, t1, if_mod, paths, window_size=10000, stride=5000):
     """
-    Extracts the sliding window over the segment with the largest IF anomaly score.
+    Extracts and normalizes the sliding window over the segment with the largest IF anomaly score.
     Parameters:
     ----------
-        t0 : obspy.UTCDateTime
-            Start time of the segment to read.
-        t1 : obspy.UTCDateTime
-            End time of the segment to read.
-        if_mod: sklearn.ensemble.IsolationForest
-            Trained Isolation Forest model for anomaly scoring.
-        paths : list of str
-            List of file paths containing the seismic miniseed recordings.
-        window_size : int, optional
-            Number of samples in each window. Default is 10,000.
-        stride : int, optional
-            Number of samples to move the window at each step. Default is 5,000.
+    t0 : obspy.UTCDateTime
+        Start time of the segment to read.
+    t1 : obspy.UTCDateTime
+        End time of the segment to read.
+    if_mod: sklearn.ensemble.IsolationForest
+        Trained Isolation Forest model for anomaly scoring.
+    paths : list of str
+        List of file paths containing the seismic miniseed recordings.
+    window_size : int, optional
+        Number of samples in each window. Default is 10,000.
+    stride : int, optional
+        Number of samples to move the window at each step. Default is 5,000.
     Returns:
     ----------
-        np.ndarray: The segment template.
+    np.ndarray: The segment template.
     Notes:
     ----------
     This sliding window can be used as a template to compare two segments via dynamic
@@ -320,10 +323,10 @@ def get_git_root() -> Path:
     Raises a RuntimeError if the current working directory is not inside a Git repository.
     Returns:
     ----------
-        Path: The absolute path to the root of the Git repository.
+    Path: The absolute path to the root of the Git repository.
     Raises:
     ----------
-        RuntimeError: If the current directory is not inside a Git repository.
+    RuntimeError: If the current directory is not inside a Git repository.
     """
     try:
         output = subprocess.check_output(
@@ -344,10 +347,10 @@ def get_data_subpath(*subpath_parts: str) -> Path:
             to append to the 'data' directory within the git root.
     Returns:
     ----------
-        Path: The full path to the specified data subdirectory or file.
+    Path: The full path to the specified data subdirectory or file.
     Raises:
     ----------
-        Any exception raised by get_git_root() if the git root cannot be determined.
+    Any exception raised by get_git_root() if the git root cannot be determined.
     """
     git_root = get_git_root()
     data_path = git_root / "data" / Path(*subpath_parts)
@@ -359,19 +362,21 @@ def find_paths(network, station, channel, start=2018, stop=2020):
     Finds and returns a sorted list of file paths for seismic data streams for a given network, station, and channel over a specified year range.
     Parameters:
     ----------
-        network: str
-            The seismic network.
-        station: str
-            The station identifier.
-        channel: str
-            The channel.
-        start: int, optional
-            The starting year (inclusive). Defaults to 2018.
-        stop: int, optional
-            The ending year (inclusive). Defaults to 2020.
+    network: str
+        The seismic network.
+    station: str
+        The station identifier.
+    channel: str
+        The channel.
+    start: int, optional
+        The starting year (inclusive). Defaults to 2018.
+    stop: int, optional
+        The ending year (inclusive). Defaults to 2020.
     Returns:
+    ----------
         np.ndarray: A concatenated and sorted array of file paths for the specified parameters and year range.
     Notes:
+    ----------
         - Files starting with "._" are ignored.
         - Sorting is performed based on the integer value of the file extension.
     """
@@ -393,19 +398,22 @@ def extract_split_flows(df, station, start, stop):
     Splits the DataFrame into lower- and high confidence segments.
     Parameters:
     ----------
-        df: pd.DataFrame
-            Input DataFrame including columns for start, stop, station and confidence
-        station: str
-            Station for which to extract segments for.
-        start: int, optional
-            The starting year (inclusive). Defaults to 2018.
-        stop: int, optional
-            The ending year (inclusive). Defaults to 2020.
+    df: pd.DataFrame
+        Input DataFrame including columns for start, stop, station and confidence
+    station: str
+        Station for which to extract segments for.
+    start: int, optional
+        The starting year (inclusive). Defaults to 2018.
+    stop: int, optional
+        The ending year (inclusive). Defaults to 2020.
     Returns:
     ----------
-        lower_conf_flows (pd.DataFrame): DataFrame of flows with 'low' or 'med' confidence.
-        high_conf_flows (pd.DataFrame): DataFrame of flows with 'high' confidence.
-        df (pd.DataFrame): Filtered DataFrame containing all debris flow segments.
+    lower_conf_flows: pd.DataFrame
+        DataFrame of flows with 'low' or 'med' confidence.
+    high_conf_flows: pd.DataFrame
+        DataFrame of flows with 'high' confidence.
+    df: pd.DataFrame
+        Filtered DataFrame containing all debris flow segments.
     """
     start = obspy.UTCDateTime(f"{start}-01-01")
     stop = obspy.UTCDateTime(f"{stop}-12-31T23:59:59.999999")
