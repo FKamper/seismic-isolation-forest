@@ -109,7 +109,7 @@ def est_thresholds(df, gt, mode="lower"):
 
         else:
             iou_scores.append(iou_vals[k])
-            score_thres.append(df.iloc[k + 1, 2])
+            score_thres.append(df["scores"][k + 1])
 
     iou_vals = np.array(iou_scores)
     score_thres = np.array(score_thres)
@@ -227,8 +227,12 @@ def find_unconfirmed_fp(detections, station_flows, confirmed_fp, station, source
     ----------
     pd.DataFrame: DataFrame of unconfirmed false positives with added station and source columns.
     """
+
     fp = find_fp_fn(detections, station_flows)[0]
-    fp = find_fp_fn(fp, confirmed_fp)[0]
+
+    if len(confirmed_fp) > 0:
+        fp = find_fp_fn(fp, confirmed_fp)[0]
+
     if len(fp) > 0:
         fp.drop(columns=["scores", "det_lens"], inplace=True)
         fp.insert(0, "station", np.repeat(station, len(fp)))

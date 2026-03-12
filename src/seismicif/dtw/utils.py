@@ -96,3 +96,21 @@ def segment_dtw(seg1, seg2):
         dtw_dists.append(fastdtw(x, y)[0])
 
     return dtw_dists, path
+
+
+def distribute_pairwise_segment_dtw(args):
+    i, j, segments = args
+    seg1 = segments[i]
+    seg2 = segments[j]
+    return segment_dtw(seg1, seg2)
+
+
+def distribute_reference_segment_dtw(args):
+    target_segment, ref_segments = args
+
+    dtw_dists = []
+
+    for i in range(len(ref_segments)):
+        dtw_dists.append(segment_dtw(target_segment, ref_segments[i]))
+
+    return dtw_dists

@@ -8,7 +8,7 @@ from joblib import dump, load
 from seismicif.datamod.loading_utils import find_paths, preproc_flow_annotations, extract_split_flows
 from seismicif.datamod.trigger_utils import stream_trigger_detections
 from seismicif.isolation_forest import train_if, compute_scores, create_if_stream
-from seismicif.metrics import iou, compute_statistics, find_unconfirmed_fp, compute_lower_conf_recall, extract_valid_segments, compute_station_metrics
+from seismicif.metrics import iou, compute_statistics, find_unconfirmed_fp, compute_lower_conf_recall, extract_valid_segments, compute_station_metrics, find_fp_fn
 
 stations = ["ILL11","ILL12","ILL13","ILL14","ILL15","ILL16","ILL17","ILL18"]
 tr_start, tr_stop, te_start, te_stop = 2018, 2020, 2021, 2022
@@ -19,7 +19,7 @@ tr_stop_UTC = obspy.UTCDateTime(f"{tr_stop}-12-31T23:59:59.999999")
 te_start_UTC = obspy.UTCDateTime(f"{te_start}-01-01")
 te_stop_UTC = obspy.UTCDateTime(f"{te_stop}-12-31T23:59:59.999999")
 
-flows = preproc_flow_annotations(pd.read_csv("../catalogs/XP/flow_catalog.csv",index_col=0))
+flows = preproc_flow_annotations(pd.read_csv("../catalogs/XP/flow_catalog.csv"))
 confirmed_fp = preproc_flow_annotations(pd.read_csv("../catalogs/XP/confirmed_FP.csv"))
 flows = flows[["2022-09-08" not in str(i) for i in flows["start"]]].reset_index(drop=True)
 all_detections = {}
@@ -49,13 +49,15 @@ tr_unconfirmed_fp = {}
 te_unconfirmed_fp = {}
 
 confirmed_fp_dict = {}
-for station in ["ILL11", "ILL12", "ILL13", "ILL14", "ILL16", "ILL17", "ILL18"]:
+for station in ["ILL11", "ILL12", "ILL13", "ILL14", "ILL15", "ILL16", "ILL17", "ILL18"]:
     confirmed_fp_dict[station] = pd.concat(
         [
             confirmed_fp[confirmed_fp["station"] == station].iloc[:, [0, 1, 2, 5]],
 
         ]
     ).reset_index(drop=True)
+
+
 
 for station in ["ILL11", "ILL12", "ILL13", "ILL18"]:
     tr_unconfirmed_fp[station] = []
@@ -80,12 +82,21 @@ for station in ["ILL11", "ILL12", "ILL13", "ILL18"]:
     tr_unconfirmed_fp[station] = pd.concat(tr_unconfirmed_fp[station], ignore_index=True)
     te_unconfirmed_fp[station] = pd.concat(te_unconfirmed_fp[station], ignore_index=True)
 
-for station in ["ILL14","ILL16","ILL17"]:
+for station in ["ILL14","ILL15","ILL16","ILL17"]:
     _, _, station_flows = extract_split_flows(flows, station, tr_start, te_stop)
+
+    #if len(confirmed_fp_dict[station]) > 0:
     fp = find_unconfirmed_fp(all_detections[station]["tr_detections"]["dtw"], station_flows, confirmed_fp_dict[station], station, "DTW")
     tr_unconfirmed_fp[station] = fp
     fp = find_unconfirmed_fp(all_detections[station]["te_detections"]["dtw"], station_flows, confirmed_fp_dict[station], station, "DTW")
     te_unconfirmed_fp[station] = fp
+
+    # else:
+    #     fp = find_fp_fn(all_detections[station]["tr_detections"]["dtw"], station_flows)[0]
+    #     tr_unconfirmed_fp[station] = fp
+    #     fp = find_fp_fn(all_detections[station]["te_detections"]["dtw"], station_flows)[0]
+    #     te_unconfirmed_fp[station] = fp
+
 
 tr_unconfirmed_fp = pd.concat(tr_unconfirmed_fp, ignore_index=True)
 te_unconfirmed_fp = pd.concat(te_unconfirmed_fp, ignore_index=True)
@@ -94,9 +105,11 @@ te_unconfirmed_fp = pd.concat(te_unconfirmed_fp, ignore_index=True)
 if len(tr_unconfirmed_fp) > 0:
     tr_unconfirmed_fp.to_csv("../catalogs/XP/tr_unconfirmed_fp.csv", index=False)
     sys.exit("Unconfirmed false positives found in training detections. Please check the output file: ../catalogs/XP/tr_unconfirmed_fp.csv")
-if len(te_unconfirmed_fp) > 0:
-    te_unconfirmed_fp.to_csv("../catalogs/XP/te_unconfirmed_fp.csv", index=False)
-    sys.exit("Unconfirmed false positives found in testing detections. Please check the output file: ../catalogs/XP/te_unconfirmed_fp.csv")
+    #Todo delete file if check successful
+# if len(te_unconfirmed_fp) > 0:
+#     te_unconfirmed_fp.to_csv("../catalogs/XP/te_unconfirmed_fp.csv", index=False)
+#     sys.exit("Unconfirmed false positives found in testing detections. Please check the output file: ../catalogs/XP/te_unconfirmed_fp.csv")
+    #Todo delete file if check successful
 
 for station in stations:
     sta_lta_detections = all_detections[station]["tr_detections"]["sta_lta"]

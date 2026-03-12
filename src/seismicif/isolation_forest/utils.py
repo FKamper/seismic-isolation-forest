@@ -12,7 +12,17 @@ from seismicif.datamod.loading_utils import (
 from datetime import timedelta
 
 
-def train_if(stream_paths, norm=False, preproc=True, if_mod=None, max_val=np.inf):
+def train_if(
+    stream_paths,
+    norm=False,
+    preproc=True,
+    if_mod=None,
+    max_val=np.inf,
+    max_samples=256,
+    n_jobs=-1,
+    if_random_state=0,
+    np_seed=42,
+):
     """
     Trains an Isolation Forest model to a collection of seismic data streams. An IF tree is trained
     to sliding windows extracted from each miniseed recording, after preprocessing.
@@ -28,6 +38,14 @@ def train_if(stream_paths, norm=False, preproc=True, if_mod=None, max_val=np.inf
         An existing Isolation Forest model to continue training. If None, a new model is created. Default is None.
     max_val : float, optional
         Maximum allowed value in a miniseed recording. Streams with values exceeding this are skipped. Default is np.inf.
+    max_samples : int, optional
+        Maximum number of samples to used to train each tree. If a stream has fewer samples than `max_samples`, samples are drawn with replacement. Default is 256.
+    n_jobs : int, optional
+        Number of jobs to run in parallel for training the Isolation Forest. Default is -1 (use all available cores).
+    if_random_state : int, optional
+        Random state for the Isolation Forest. Default is 0.
+    np_seed : int, optional
+        Seed for NumPy random number generator. Default is 42.
     Returns
     -------
     if_mod : sklearn.ensemble.IsolationForest
@@ -35,8 +53,16 @@ def train_if(stream_paths, norm=False, preproc=True, if_mod=None, max_val=np.inf
     """
     if if_mod is None:
         if_mod = IF(
-            n_estimators=0, max_features=1.0, warm_start=True, n_jobs=16, random_state=0
+            n_estimators=0,
+            max_features=1.0,
+            warm_start=True,
+            n_jobs=n_jobs,
+            random_state=if_random_state,
+            max_samples=max_samples,
         )
+
+    else:
+        max_samples = if_mod.max_samples_
 
     for i in tqdm(range(stream_paths.shape[0])):
         st = obspy.read(stream_paths[i])
@@ -45,9 +71,15 @@ def train_if(stream_paths, norm=False, preproc=True, if_mod=None, max_val=np.inf
         if norm:
             normalize_stream(st)
 
-        X, T = sliding_windows_from_stream(st)
+        X, _ = sliding_windows_from_stream(st)
+
         if X.shape[0] == 0:
             continue
+
+        if X.shape[0] < max_samples:
+            rng = np.random.default_rng(np_seed)
+            idx = rng.choice(X.shape[0], max_samples, replace=True)
+            X = X[idx]
 
         if np.max(X) > max_val:
             print(stream_paths[i])
@@ -55,9 +87,47 @@ def train_if(stream_paths, norm=False, preproc=True, if_mod=None, max_val=np.inf
 
         if_mod.n_estimators = if_mod.n_estimators + 1
         if_mod.fit(X)
-        # print(np.round(100 * (i / stream_paths.shape[0]), 2), "%", end=" \r")
 
     return if_mod
+
+
+# def compute_c(n):
+#     """
+#     Compute the average path length of an unsuccessful search in a binary search tree.
+#     n can be an integer or a NumPy array.
+#     """
+#     gamma = 0.5772156649
+#     n = np.array(n)
+#     c = np.zeros_like(n, dtype=float)
+#     mask = n > 1
+#     c[mask] = 2 * (np.log(n[mask] - 1) + gamma) - 2 * (n[mask] - 1) / n[mask]
+#     return c
+
+
+# def reweighted_score_samples(model, X):
+#     """
+#     Compute Isolation Forest anomaly scores manually, reproducing model.score_samples.
+
+#     Parameters:
+#         model: trained sklearn IsolationForest
+#         X: array-like of shape (n_samples, n_features)
+
+#     Returns:
+#         scores: array of anomaly scores for each sample
+#     """
+#     scores = []
+
+#     for tree in model.estimators_:
+#         node_counts = tree.decision_path(X).toarray().sum(axis=1)
+#         leaf_nodes = tree.apply(X)
+#         n_leaf = tree.tree_.n_node_samples[leaf_nodes]
+#         edges = node_counts - 1
+
+#         h = edges + compute_c(n_leaf)
+#         scores.append(h / compute_c(tree.tree_.n_node_samples[0]))
+
+#     scores = np.array(scores).T
+#     return 2 ** (-scores.mean(axis=1))
 
 
 def compute_scores(
@@ -143,6 +213,8 @@ def compute_scores(
             continue
 
         scores.append(-if_mod.score_samples(X))
+        # scores.append(reweighted_score_samples(if_mod, X))
+
         stdevs.append(np.std(X, axis=1))
         times.append(T)
 

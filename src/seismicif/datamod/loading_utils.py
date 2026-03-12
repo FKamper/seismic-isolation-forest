@@ -433,7 +433,7 @@ def extract_split_flows(df, station, start, stop):
 
 
 def limit_segment_length(
-    t0, t1, paths, if_mod, max_len=1800, window_size=10000, stride=5000
+    t0, t1, paths, if_mod, max_len=1800, window_size=10000, stride=5000, return_tr=False
 ):
     """
     Limits the length of a segment based on IF anomaly scores.
@@ -495,5 +495,9 @@ def limit_segment_length(
     if_scores = if_scores[idx_low : idx_high + 1]
     start = T[idx_low][0]
     stop = T[idx_high][1]
+
+    # Todo: update docstring
+    if return_tr:
+        return tr.trim(start, stop)
 
     return X, if_scores, start, stop
