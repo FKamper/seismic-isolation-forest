@@ -85,17 +85,10 @@ for station in ["ILL11", "ILL12", "ILL13", "ILL18"]:
 for station in ["ILL14","ILL15","ILL16","ILL17"]:
     _, _, station_flows = extract_split_flows(flows, station, tr_start, te_stop)
 
-    #if len(confirmed_fp_dict[station]) > 0:
     fp = find_unconfirmed_fp(all_detections[station]["tr_detections"]["dtw"], station_flows, confirmed_fp_dict[station], station, "DTW")
     tr_unconfirmed_fp[station] = fp
     fp = find_unconfirmed_fp(all_detections[station]["te_detections"]["dtw"], station_flows, confirmed_fp_dict[station], station, "DTW")
     te_unconfirmed_fp[station] = fp
-
-    # else:
-    #     fp = find_fp_fn(all_detections[station]["tr_detections"]["dtw"], station_flows)[0]
-    #     tr_unconfirmed_fp[station] = fp
-    #     fp = find_fp_fn(all_detections[station]["te_detections"]["dtw"], station_flows)[0]
-    #     te_unconfirmed_fp[station] = fp
 
 
 tr_unconfirmed_fp = pd.concat(tr_unconfirmed_fp, ignore_index=True)
@@ -106,9 +99,9 @@ if len(tr_unconfirmed_fp) > 0:
     tr_unconfirmed_fp.to_csv("../catalogs/XP/tr_unconfirmed_fp.csv", index=False)
     sys.exit("Unconfirmed false positives found in training detections. Please check the output file: ../catalogs/XP/tr_unconfirmed_fp.csv")
     #Todo delete file if check successful
-# if len(te_unconfirmed_fp) > 0:
-#     te_unconfirmed_fp.to_csv("../catalogs/XP/te_unconfirmed_fp.csv", index=False)
-#     sys.exit("Unconfirmed false positives found in testing detections. Please check the output file: ../catalogs/XP/te_unconfirmed_fp.csv")
+if len(te_unconfirmed_fp) > 0:
+    te_unconfirmed_fp.to_csv("../catalogs/XP/te_unconfirmed_fp.csv", index=False)
+    sys.exit("Unconfirmed false positives found in testing detections. Please check the output file: ../catalogs/XP/te_unconfirmed_fp.csv")
     #Todo delete file if check successful
 
 for station in stations:

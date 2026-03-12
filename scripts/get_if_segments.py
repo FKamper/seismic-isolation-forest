@@ -5,11 +5,8 @@ import numpy as np
 import obspy
 import json
 
-from seismicif.datamod.loading_utils import preproc_flow_annotations, extract_split_flows
 from seismicif.datamod.trigger_utils import stream_trigger_detections
 from seismicif.isolation_forest import create_if_stream
-from seismicif.metrics import iou
-from joblib import dump, load
 
 def main():
     parser = argparse.ArgumentParser(description="Train Isolation Forest and Compute Anomaly Scores")
