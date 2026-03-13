@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.cluster.hierarchy import linkage
 from scipy.spatial.distance import squareform
+from seismicif.metrics import iou
 
 
 def get_merge_height(Z, obj_index):
@@ -32,3 +33,21 @@ def remove_singleton_merges(D):
         max_merge_height = np.max(Z[:, 2])
 
     return idx
+
+
+def get_dtw_score(seg, ref_segments, new_dists, D):
+    cummulative_intersections, _, _ = iou(ref_segments, seg)
+    intersection_lengths = np.append(
+        cummulative_intersections[0], np.diff(cummulative_intersections)
+    )
+    non_overlap_idx = np.where(intersection_lengths == 0)[0]
+
+    Dn = D[np.ix_(non_overlap_idx, non_overlap_idx)]
+    new_dists = new_dists[non_overlap_idx]
+    Dn = np.hstack([Dn, new_dists.reshape(-1, 1)])
+    Dn = np.vstack([Dn, np.append(new_dists, 0)])
+
+    Dsqf = squareform(Dn)
+    Z = linkage(Dsqf, method="complete")
+
+    return get_merge_height(Z, Dn.shape[0] - 1)

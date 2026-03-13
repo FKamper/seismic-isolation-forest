@@ -9,4 +9,5 @@ from .utils import (
 from .linkage import (
     get_merge_height,
     remove_singleton_merges,
+    get_dtw_score,
 )

@@ -83,7 +83,9 @@ def segment_dtw(seg1, seg2):
     X1, scores_seg1, _, _ = seg1
     X2, scores_seg2, _, _ = seg2
 
-    _, path = fastdtw(scores_seg1, scores_seg2)
+    _, path = fastdtw(
+        scores_seg1, scores_seg2, radius=max(scores_seg1.shape[0], scores_seg2.shape[0])
+    )
     dtw_dists = []
 
     for i in range(len(path)):
@@ -93,7 +95,7 @@ def segment_dtw(seg1, seg2):
         y = X2[path[i][1], :]
         y = (y - np.mean(y)) / np.std(y)
 
-        dtw_dists.append(fastdtw(x, y)[0])
+        dtw_dists.append(fastdtw(x, y, radius=1)[0])
 
     return dtw_dists, path
 
