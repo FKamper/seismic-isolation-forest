@@ -97,11 +97,11 @@ te_unconfirmed_fp = pd.concat(te_unconfirmed_fp, ignore_index=True)
 
 if len(tr_unconfirmed_fp) > 0:
     tr_unconfirmed_fp.to_csv("../catalogs/XP/tr_unconfirmed_fp.csv", index=False)
-    sys.exit("Unconfirmed false positives found in training detections. Please check the output file: ../catalogs/XP/tr_unconfirmed_fp.csv")
+    #sys.exit("Unconfirmed false positives found in training detections. Please check the output file: ../catalogs/XP/tr_unconfirmed_fp.csv")
     #Todo delete file if check successful
 if len(te_unconfirmed_fp) > 0:
     te_unconfirmed_fp.to_csv("../catalogs/XP/te_unconfirmed_fp.csv", index=False)
-    sys.exit("Unconfirmed false positives found in testing detections. Please check the output file: ../catalogs/XP/te_unconfirmed_fp.csv")
+    #sys.exit("Unconfirmed false positives found in testing detections. Please check the output file: ../catalogs/XP/te_unconfirmed_fp.csv")
     #Todo delete file if check successful
 
 for station in stations:

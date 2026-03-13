@@ -8,7 +8,7 @@ import numpy as np
 
 from tqdm import tqdm
 from seismicif.datamod.loading_utils import preproc_flow_annotations, extract_split_flows, find_paths, limit_segment_length
-from seismicif.dtw import distribute_reference_segment_dtw, distribute_pairwise_segment_dtw, remove_singleton_merges
+from seismicif.dtw import  distribute_pairwise_segment_dtw, remove_singleton_merges
 
 def main():
     parser = argparse.ArgumentParser(description="Perform DTW between segments and reference segments.")
@@ -88,7 +88,7 @@ def main():
     ref_segments = {"start": [i[2] for i in ref_segments], "stop": [i[3] for i in ref_segments],"include": np.repeat("no",n)}
     ref_segments = pd.DataFrame(ref_segments)
     ref_segments.loc[idx, "include"] = "yes"
-    ref_segments.to_csv(f"{dtw_path}/{args.station}_reference_segments.csv", index=False)
+    ref_segments.to_csv(f"{dtw_path}/{args.station}.csv", index=False)
 
 if __name__ == "__main__":
     main()
