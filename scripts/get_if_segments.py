@@ -26,23 +26,21 @@ def main():
     trigger_params_path = f"../output/{args.network}/if/segments/trigger_params.json"
 
     if not os.path.isfile(trigger_params_path):
-        print(f"No trigger parameters found. Running with rule of thumb thresholds.")
+        print(f"No trigger parameters found for network. Running with rule of thumb thresholds.")
         onset_thres, offset_thres = 0.60,0.55
 
     else:
         with open(trigger_params_path, "r") as f:
             trigger_params = json.load(f)
 
-    if args.station not in (d["station"] for d in trigger_params):
-        print(f"No trigger parameters found. Running with rule of thumb thresholds.")
-        onset_thres, offset_thres = 0.60,0.55
+        if args.station not in (d["station"] for d in trigger_params):
+            print(f"No trigger parameters found for station. Running with rule of thumb thresholds.")
+            onset_thres, offset_thres = 0.60,0.55
 
-    else:
-        entry = next((d for d in trigger_params if d.get("station") == args.station), None)
-        onset_thres, offset_thres = entry["onset_thres"], entry["offset_thres"]
-        print(f"{args.station}: Using onset threshold {onset_thres} and offset threshold {offset_thres} from calibration.")
-
-    scores_path = f"../output/{args.network}/if/scores/"
+        else:
+            entry = next((d for d in trigger_params if d.get("station") == args.station), None)
+            onset_thres, offset_thres = entry["onset_thres"], entry["offset_thres"]
+            print(f"{args.station}: Using onset threshold {onset_thres} and offset threshold {offset_thres} from calibration.")
 
     try:
         scores_df = pd.read_csv(f"../output/{args.network}/if/scores/{args.station}.csv",index_col=0)

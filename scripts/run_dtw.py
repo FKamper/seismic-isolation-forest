@@ -8,7 +8,8 @@ import numpy as np
 
 from tqdm import tqdm
 from seismicif.datamod.loading_utils import preproc_flow_annotations, find_paths, limit_segment_length
-from seismicif.dtw import distribute_reference_segment_dtw, get_dtw_score
+from seismicif.dtw import distribute_reference_segment_dtw
+from seismicif.metrics import iou
 
 def main():
     parser = argparse.ArgumentParser(description="Perform DTW between segments and reference segments.")
@@ -51,8 +52,6 @@ def main():
         print("Loaded IF segments")
         if_segments_df =  preproc_flow_annotations(pd.read_csv(f"{segments_path}/{args.station}.csv",index_col=0))
         dtw_segments_df = if_segments_df.copy()
-        if_segments_df.drop(columns=["start", "stop","most_anomalous_start"], inplace=True)
-        if_segments_df.rename(columns={"segment_of_interest_start": "start","segment_of_interest_stop": "stop"}, inplace=True)
 
     ref_segments_path = f"../output/{args.network}/dtw/reference_segments/"
 
@@ -77,7 +76,7 @@ def main():
             ref_segments.append(limit_segment_length(ref_segments_df["start"][i], ref_segments_df["stop"][i], paths, if_mod))
 
         paired_segments = []
-
+#Todo: if there is an error below it is probably because the input eval period does not cover the if segment period. Need to add error handling for this.
         for i in tqdm(range(if_segments_df.shape[0]),desc=f"{args.station}: Limiting IF segment lengths"):
             paired_segments.append((limit_segment_length(if_segments_df["start"][i], if_segments_df["stop"][i], paths, if_mod),ref_segments))
 
@@ -118,20 +117,17 @@ def main():
                 results = pickle.load(f)
 
             X = np.zeros((len(results), len(results[0])))
+
             for i in range(len(results)):
                 X[i] = np.array([np.median(results[i][k][0]) for k in range(len(results[i]))])
+                cummulative_intersections, _, _ = iou(ref_segments_df, dtw_segments_df.iloc[[i]].reset_index(drop=True))
+                intersection_lengths = np.append(cummulative_intersections[0], np.diff(cummulative_intersections))
+                overlap_idx = np.where(intersection_lengths > 0)[0]
+                X[i,overlap_idx] = np.nan
 
             print("Loaded segment DTW distances.")
 
-            dendo_height_scores =[]
-            for i in range(len(if_segments_df)):
-                score = get_dtw_score(if_segments_df.iloc[[i],:].reset_index(drop=True), ref_segments_df, X[i,:], D)
-                dendo_height_scores.append(score)
-            dendo_height_scores = np.array(dendo_height_scores)
-
-            print("Computed merge heights.")
-
-            dtw_segments_df["scores"] = dendo_height_scores
+            dtw_segments_df["scores"] = np.nanmean(X,axis=1)
             dtw_segments_df.sort_values(by="scores", inplace=True)
             dtw_segments_df.reset_index(drop=True, inplace=True)
             dtw_segments_df.to_csv(f"{segment_storage_path}/{args.station}.csv")

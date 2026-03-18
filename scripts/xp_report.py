@@ -34,7 +34,7 @@ for station in stations:
 
     sta_lta_detections = preproc_flow_annotations(pd.read_csv(f"../output/XP/sta_lta/detections/{station}.csv",index_col=0))
     if_detections = preproc_flow_annotations(pd.read_csv(f"../output/XP/if/detections/{station}.csv",index_col=0))
-    dtw_detections = preproc_flow_annotations(pd.read_csv(f"../output/XP/if_dtw/detections/{station}.csv",index_col=0))
+    dtw_detections = preproc_flow_annotations(pd.read_csv(f"../output/XP/dtw/detections/{station}.csv",index_col=0))
 
     all_detections[station]["tr_detections"]["sta_lta"] = sta_lta_detections[(sta_lta_detections["start"] >  tr_start_UTC) & (sta_lta_detections["stop"] < tr_stop_UTC)].reset_index(drop=True)
     all_detections[station]["tr_detections"]["if"] = if_detections[(if_detections["start"] >  tr_start_UTC) & (if_detections["stop"] < tr_stop_UTC)].reset_index(drop=True)
@@ -178,7 +178,7 @@ with open(filename, "r") as f:
 if_params_tab["if-thres"] = [i["score_thres"] for i in if_threshold_params]
 if_params_tab["if-mdl"] = [i["min_len"]/60 for i in if_threshold_params]
 
-filename = "../output/XP/if_dtw/detections/threshold_params.json"
+filename = "../output/XP/dtw/detections/threshold_params.json"
 
 with open(filename, "r") as f:
     dtw_threshold_params = json.load(f)

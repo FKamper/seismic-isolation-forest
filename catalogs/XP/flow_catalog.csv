@@ -403,7 +403,8 @@ ILL13,EHZ,2021-09-19T08:40:00.000000Z,2021-09-19T10:31:00.000000Z,med,
 ILL11,HHZ,2021-09-19T09:03:00.000000Z,2021-09-19T10:45:00.000000Z,med,
 ILL17,EHZ,2021-09-30T09:24:58.000000Z,2021-09-30T09:32:28.000000Z,low,Seems like to strong signals of a rockfall in the upper catchment.
 ILL18,EHZ,2022-04-06T06:46:38.000000Z,2022-04-06T07:36:32.000000Z,low,"Could be upper catchment activity, but highly uncertain (no other station available and very weak)."
-ILL17,EHZ,2022-05-11T22:16:02.650000Z,2022-05-11T22:22:42.650000Z,low,"Slope failure. Visible on all stations."
+ILL17,EHZ,2022-05-11T22:16:02.650000Z,2022-05-11T22:22:42.650000Z,low,"Slope failure. Visible on upper stations."
+ILL14,EHZ,2022-05-11T22:16:46.270000Z,2022-05-11T22:20:06.270000Z,low,"Slope failure. Visible on upper stations."
 ILL14,EHZ,2022-05-12T08:05:06.000000Z,2022-05-12T08:09:16.000000Z,low,Likely upper catchment activity.
 ILL14,EHZ,2022-05-12T11:16:46.000000Z,2022-05-12T11:25:56.000000Z,low,"Very weak signals, perhaps upper catchment activity."
 ILL14,EHZ,2022-05-14T07:06:46.000000Z,2022-05-14T07:10:06.000000Z,low,"Likely upper catchment activity."

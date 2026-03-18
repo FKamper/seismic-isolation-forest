@@ -42,6 +42,8 @@ def main():
         print(f"Folder does not exist. Please create ../output/{args.network}/if/segments/")
         return
 
+    print(f"Calibrating trigger from {args.tr_start} to {args.tr_end}")
+
     trigger_params_path = f"../output/{args.network}/if/segments/trigger_params.json"
 
     if not os.path.isfile(trigger_params_path):
@@ -63,6 +65,7 @@ def main():
     scores_path = f"../output/{args.network}/if/scores/{args.station}.csv"
 
     try:
+        print("Loading IF scores. Can take a few seconds.")
         scores_df = pd.read_csv(scores_path, index_col=0)
         scores_df["start"] = [obspy.UTCDateTime(str(i)) for i in scores_df["start"]]
         scores_df["stop"] = [obspy.UTCDateTime(str(i)) for i in scores_df["stop"]]

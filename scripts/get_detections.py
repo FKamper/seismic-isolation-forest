@@ -20,14 +20,14 @@ def main():
 
     args = parser.parse_args()
 
-    segments_path = f"../output/{args.network}/{args.method}/segments/"
+    segments_path = f"../output/{args.network}/{args.method}/segments/{args.station}.csv"
 
-    if not os.path.isdir(segments_path):
-        print(f"Segments do not exist. Please generate and store in ../output/{args.network}/{args.method}/segments/")
+    if not os.path.isfile(segments_path):
+        print(f"Segments do not exist. Please generate and store in ..{segments_path}")
         return
 
     else:
-        segments =  preproc_flow_annotations(pd.read_csv(f"{segments_path}/{args.station}.csv",index_col=0))
+        segments =  preproc_flow_annotations(pd.read_csv(segments_path, index_col=0))
 
     detections_path = f"../output/{args.network}/{args.method}/detections/"
 

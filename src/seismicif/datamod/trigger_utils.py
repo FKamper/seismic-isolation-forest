@@ -56,75 +56,16 @@ def trace_trigger_detections(tr, onset_thres, offset_thres, lag=100, max_len=180
         )
         segment_score = scores[most_anomalous_idx]
 
-        idx_low = most_anomalous_idx
-        idx_high = most_anomalous_idx
-
-        while True:
-            seg_length = (idx_high - idx_low) / sr
-            if seg_length >= max_len:
-                break
-
-            if idx_low == 0 and idx_high == len(scores) - 1:
-                break
-
-            if idx_low == 0:
-                idx_high += 1
-            elif idx_high == len(scores) - 1:
-                idx_low -= 1
-            elif scores[idx_high + 1] > scores[idx_low - 1]:
-                idx_high += 1
-            else:
-                idx_low -= 1
-
-        segment_of_interest_start = tr.stats.starttime + timedelta(
-            seconds=(i[0] + idx_low) / sr
-        )
-        segment_of_interest_stop = tr.stats.starttime + timedelta(
-            seconds=(i[0] + idx_high) / sr
-        )
-
         dtc.append(
             {
                 "start": t0,
                 "stop": t1,
                 "most_anomalous_start": most_anomalous_start,
-                "segment_of_interest_start": segment_of_interest_start,
-                "segment_of_interest_stop": segment_of_interest_stop,
                 "scores": segment_score,
             }
         )
 
     return dtc
-
-
-#  tr = read_segment(t0, t1, paths)
-#     X, T = sliding_windows_from_trace(tr, window_size=window_size, stride=stride)
-#     if_scores = -if_mod.score_samples(X)
-
-#     idx_low = np.argmax(if_scores)
-#     idx_high = np.argmax(if_scores)
-
-#     while True:
-#         seg_length = T[idx_high][1] - T[idx_low][0]
-#         if seg_length >= max_len:
-#             break
-
-#         if idx_low == 0 and idx_high == len(if_scores) - 1:
-#             break
-
-#         if idx_low == 0:
-#             idx_high += 1
-#         elif idx_high == len(if_scores) - 1:
-#             idx_low -= 1
-#         elif if_scores[idx_high + 1] > if_scores[idx_low - 1]:
-#             idx_high += 1
-#         else:
-#             idx_low -= 1
-
-#     X = X[idx_low : idx_high + 1]
-#     if_scores = if_scores[idx_low : idx_high + 1]
-#     start = T[idx_low][0]
-#     stop = T[idx_high][1]
 
 
 def stream_trigger_detections(st, onset_thres, offset_thres, lag=100):
