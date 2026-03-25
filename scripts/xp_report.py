@@ -93,35 +93,32 @@ for station in ["ILL14","ILL15","ILL16","ILL17"]:
 
 tr_unconfirmed_fp = pd.concat(tr_unconfirmed_fp, ignore_index=True)
 te_unconfirmed_fp = pd.concat(te_unconfirmed_fp, ignore_index=True)
-
+tr_unconfirmed_fp.to_csv("../catalogs/XP/tr_unconfirmed_fp.csv", index=False)
+te_unconfirmed_fp.to_csv("../catalogs/XP/te_unconfirmed_fp.csv", index=False)
 
 if len(tr_unconfirmed_fp) > 0:
-    tr_unconfirmed_fp.to_csv("../catalogs/XP/tr_unconfirmed_fp.csv", index=False)
-    #sys.exit("Unconfirmed false positives found in training detections. Please check the output file: ../catalogs/XP/tr_unconfirmed_fp.csv")
-    #Todo delete file if check successful
+    sys.exit("Unconfirmed false positives found in training detections. Please check the output file: ../catalogs/XP/tr_unconfirmed_fp.csv")
 if len(te_unconfirmed_fp) > 0:
-    te_unconfirmed_fp.to_csv("../catalogs/XP/te_unconfirmed_fp.csv", index=False)
-    #sys.exit("Unconfirmed false positives found in testing detections. Please check the output file: ../catalogs/XP/te_unconfirmed_fp.csv")
-    #Todo delete file if check successful
+    sys.exit("Unconfirmed false positives found in testing detections. Please check the output file: ../catalogs/XP/te_unconfirmed_fp.csv")
 
-# for station in stations:
-#     sta_lta_detections = all_detections[station]["tr_detections"]["sta_lta"]
-#     if_detections = all_detections[station]["tr_detections"]["if"]
-#     dtw_detections = all_detections[station]["tr_detections"]["dtw"]
-#     lower_conf_flows, high_conf_flows, _ = extract_split_flows(flows, station, tr_start, tr_stop)
-#     tr_metrics[station] =  compute_station_metrics(sta_lta_detections, if_detections, dtw_detections, lower_conf_flows, high_conf_flows)
+for station in stations:
+    sta_lta_detections = all_detections[station]["tr_detections"]["sta_lta"]
+    if_detections = all_detections[station]["tr_detections"]["if"]
+    dtw_detections = all_detections[station]["tr_detections"]["dtw"]
+    lower_conf_flows, high_conf_flows, _ = extract_split_flows(flows, station, tr_start, tr_stop)
+    tr_metrics[station] =  compute_station_metrics(sta_lta_detections, if_detections, dtw_detections, lower_conf_flows, high_conf_flows)
 
-#     sta_lta_detections = all_detections[station]["te_detections"]["sta_lta"]
-#     if_detections = all_detections[station]["te_detections"]["if"]
-#     dtw_detections = all_detections[station]["te_detections"]["dtw"]
-#     lower_conf_flows, high_conf_flows, _ = extract_split_flows(flows, station, te_start, te_stop)
-#     te_metrics[station] = compute_station_metrics(sta_lta_detections, if_detections, dtw_detections, lower_conf_flows, high_conf_flows)
+    sta_lta_detections = all_detections[station]["te_detections"]["sta_lta"]
+    if_detections = all_detections[station]["te_detections"]["if"]
+    dtw_detections = all_detections[station]["te_detections"]["dtw"]
+    lower_conf_flows, high_conf_flows, _ = extract_split_flows(flows, station, te_start, te_stop)
+    te_metrics[station] = compute_station_metrics(sta_lta_detections, if_detections, dtw_detections, lower_conf_flows, high_conf_flows)
 
-# print(f"\n===== Training Metrics =====\n")
-# print(pd.DataFrame(tr_metrics).T)
+print(f"\n===== Training Metrics =====\n")
+print(pd.DataFrame(tr_metrics).T)
 
-# print(f"\n===== Testing Metrics =====\n")
-# print(pd.DataFrame(te_metrics).T)
+print(f"\n===== Testing Metrics =====\n")
+print(pd.DataFrame(te_metrics).T)
 
 # tr_lower_conf_recall_dict = {}
 # te_lower_conf_recall_dict = {}
