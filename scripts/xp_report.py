@@ -115,10 +115,71 @@ for station in stations:
     te_metrics[station] = compute_station_metrics(sta_lta_detections, if_detections, dtw_detections, lower_conf_flows, high_conf_flows)
 
 print(f"\n===== Training Metrics =====\n")
-print(pd.DataFrame(tr_metrics).T)
+tr_metrics_df = {}
+for station in stations:
+    tr_metrics_df[station] = tr_metrics[station]["for_printing"]
+print(pd.DataFrame(tr_metrics_df).T)
 
 print(f"\n===== Testing Metrics =====\n")
-print(pd.DataFrame(te_metrics).T)
+te_metrics_df = {}
+for station in stations:
+    te_metrics_df[station] = te_metrics[station]["for_printing"]
+print(pd.DataFrame(te_metrics_df).T)
+
+print(f"\n===== Condensed Testing Metrics =====\n")
+
+for station in stations:
+    if np.isnan(te_metrics[station]["sta_lta_metrics"]["precision"]):
+        te_metrics[station]["sta_lta_metrics"]["precision"] = 0.0
+    if np.isnan(te_metrics[station]["if_metrics"]["precision"]):
+        te_metrics[station]["if_metrics"]["precision"] = 0.0
+    if np.isnan(te_metrics[station]["dtw_metrics"]["precision"]):
+        te_metrics[station]["dtw_metrics"]["precision"] = 0.0
+
+condensed_te_metrics ={}
+good_stations = ["ILL11","ILL12","ILL13","ILL18"]
+condensed_te_metrics["good"] = {}
+condensed_te_metrics["good"]["sta_lta_iou"] = np.mean([te_metrics[station]["sta_lta_metrics"]["iou"] for station in good_stations])
+condensed_te_metrics["good"]["if_iou"] = np.mean([te_metrics[station]["if_metrics"]["iou"] for station in good_stations])
+condensed_te_metrics["good"]["dtw_iou"] = np.mean([te_metrics[station]["dtw_metrics"]["iou"] for station in good_stations])
+condensed_te_metrics["good"]["sta_lta_recall"] = np.mean([te_metrics[station]["sta_lta_metrics"]["recall"] for station in good_stations])
+condensed_te_metrics["good"]["if_recall"] = np.mean([te_metrics[station]["if_metrics"]["recall"] for station in good_stations])
+condensed_te_metrics["good"]["dtw_recall"] = np.mean([te_metrics[station]["dtw_metrics"]["recall"] for station in good_stations])
+condensed_te_metrics["good"]["sta_lta_precision"] = np.mean([te_metrics[station]["sta_lta_metrics"]["precision"] for station in good_stations])
+condensed_te_metrics["good"]["if_precision"] = np.mean([te_metrics[station]["if_metrics"]["precision"] for station in good_stations])
+condensed_te_metrics["good"]["dtw_precision"] = np.mean([te_metrics[station]["dtw_metrics"]["precision"] for station in good_stations])
+
+bad_stations = ["ILL14","ILL15","ILL16","ILL17"]
+condensed_te_metrics["bad"] = {}
+condensed_te_metrics["bad"]["sta_lta_iou"] = np.mean([te_metrics[station]["sta_lta_metrics"]["iou"] for station in bad_stations])
+condensed_te_metrics["bad"]["if_iou"] = np.mean([te_metrics[station]["if_metrics"]["iou"] for station in bad_stations])
+condensed_te_metrics["bad"]["dtw_iou"] = np.mean([te_metrics[station]["dtw_metrics"]["iou"] for station in bad_stations])
+condensed_te_metrics["bad"]["sta_lta_recall"] = np.mean([te_metrics[station]["sta_lta_metrics"]["recall"] for station in bad_stations])
+condensed_te_metrics["bad"]["if_recall"] = np.mean([te_metrics[station]["if_metrics"]["recall"] for station in bad_stations])
+condensed_te_metrics["bad"]["dtw_recall"] = np.mean([te_metrics[station]["dtw_metrics"]["recall"] for station in bad_stations])
+condensed_te_metrics["bad"]["sta_lta_precision"] = np.mean([te_metrics[station]["sta_lta_metrics"]["precision"] for station in bad_stations])
+condensed_te_metrics["bad"]["if_precision"] = np.mean([te_metrics[station]["if_metrics"]["precision"] for station in bad_stations])
+condensed_te_metrics["bad"]["dtw_precision"] = np.mean([te_metrics[station]["dtw_metrics"]["precision"] for station in bad_stations])
+
+all_stations = stations
+condensed_te_metrics["all"] = {}
+condensed_te_metrics["all"]["sta_lta_iou"] = np.mean([te_metrics[station]["sta_lta_metrics"]["iou"] for station in all_stations])
+condensed_te_metrics["all"]["if_iou"] = np.mean([te_metrics[station]["if_metrics"]["iou"] for station in all_stations])
+condensed_te_metrics["all"]["dtw_iou"] = np.mean([te_metrics[station]["dtw_metrics"]["iou"] for station in all_stations])
+condensed_te_metrics["all"]["sta_lta_recall"] = np.mean([te_metrics[station]["sta_lta_metrics"]["recall"] for station in all_stations])
+condensed_te_metrics["all"]["if_recall"] = np.mean([te_metrics[station]["if_metrics"]["recall"] for station in all_stations])
+condensed_te_metrics["all"]["dtw_recall"] = np.mean([te_metrics[station]["dtw_metrics"]["recall"] for station in all_stations])
+condensed_te_metrics["all"]["sta_lta_precision"] = np.mean([te_metrics[station]["sta_lta_metrics"]["precision"] for station in all_stations])
+condensed_te_metrics["all"]["if_precision"] = np.mean([te_metrics[station]["if_metrics"]["precision"] for station in all_stations])
+condensed_te_metrics["all"]["dtw_precision"] = np.mean([te_metrics[station]["dtw_metrics"]["precision"] for station in all_stations])
+
+
+print(pd.DataFrame(condensed_te_metrics).T.round(2))
+
+# for station in good_stations:
+#     print()
+
+
 
 # tr_lower_conf_recall_dict = {}
 # te_lower_conf_recall_dict = {}

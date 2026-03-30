@@ -144,7 +144,7 @@ def compute_statistics(detections, gt):
     """
     if len(detections) == 0:
         return {
-            "iou": np.nan,
+            "iou": 0.0,
             "recall": 0,
             "FN": gt.shape[0],
             "precision": np.nan,
@@ -310,7 +310,7 @@ def compute_station_metrics(
     )
     dtw_metrics = compute_statistics(valid_detections, high_conf_flows)
 
-    return {
+    for_printing = {
         "sta_lta_iou": f"{np.round(sta_lta_metrics['iou'], 2)}",
         "if_iou": f"{np.round(if_metrics['iou'], 2)}",
         "dtw_iou": f"{np.round(dtw_metrics['iou'], 2)}",
@@ -321,6 +321,24 @@ def compute_station_metrics(
         "if_precision": f"{np.round(if_metrics['precision'], 2)} ({if_metrics['FP']})",
         "dtw_precision": f"{np.round(dtw_metrics['precision'], 2)} ({dtw_metrics['FP']})",
     }
+
+    return {
+        "for_printing": for_printing,
+        "sta_lta_metrics": sta_lta_metrics,
+        "if_metrics": if_metrics,
+        "dtw_metrics": dtw_metrics,
+    }
+    # return {
+    #     "sta_lta_iou": f"{np.round(sta_lta_metrics['iou'], 2)}",
+    #     "if_iou": f"{np.round(if_metrics['iou'], 2)}",
+    #     "dtw_iou": f"{np.round(dtw_metrics['iou'], 2)}",
+    #     "sta_lta_recall": f"{np.round(sta_lta_metrics['recall'], 2)} ({sta_lta_metrics['FN']})",
+    #     "if_recall": f"{np.round(if_metrics['recall'], 2)} ({if_metrics['FN']})",
+    #     "dtw_recall": f"{np.round(dtw_metrics['recall'], 2)} ({dtw_metrics['FN']})",
+    #     "sta_lta_precision": f"{np.round(sta_lta_metrics['precision'], 2)} ({sta_lta_metrics['FP']})",
+    #     "if_precision": f"{np.round(if_metrics['precision'], 2)} ({if_metrics['FP']})",
+    #     "dtw_precision": f"{np.round(dtw_metrics['precision'], 2)} ({dtw_metrics['FP']})",
+    # }
 
 
 def compute_lower_conf_recall(
