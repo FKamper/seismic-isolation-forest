@@ -237,7 +237,7 @@ def find_date_in_strings(strings, date_str):
     return [s for s in strings if target in str(s)]
 
 
-def read_segment(t0, t1, paths):
+def read_segment(t0, t1, paths, filter_freq=0.3):
     """
     Extracts a segment from a seismic trace starting- and ending at times t0 and t1 respecively.
     This function first indentifies the path containing the obspy Streams containing the segment
@@ -266,7 +266,7 @@ def read_segment(t0, t1, paths):
         new_st = obspy.read(find_date_in_strings(paths, str(i)[:10])[0])
         st += new_st
 
-    preproc_stream(st)
+    preproc_stream(st, filter_freq=filter_freq)
     st = remove_overlaps(remove_duplicate_traces(st))
     st.trim(t0, t1)
 

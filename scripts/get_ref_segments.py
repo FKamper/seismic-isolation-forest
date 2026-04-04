@@ -18,7 +18,7 @@ def main():
     parser.add_argument("-tr_start", type=int, required=True, help="Start year of period to extract from.")
     parser.add_argument("-tr_end", type=int, required=True, help="Stop year of period to extract from.")
     parser.add_argument("-use_catalog",type=str,default="yes",help="should a catalog be used to generate the reference segments?")
-    parser.add_argument("-num_seg",type=int,default=50,help="number of reference segments that should be extracted when no catalog is used.")
+    parser.add_argument("-num_seg",type=int,default=200,help="number of segments to cluster and extract segments from")
 
     args = parser.parse_args()
 
@@ -96,19 +96,35 @@ def main():
         if_segments_path = f"../output/{args.network}/if/segments/"
 
         try:
-            if_segments = pd.read_csv(f"{if_segments_path}/{args.station}.csv",index_col = 0)
+            if_segments_df = pd.read_csv(f"{if_segments_path}/{args.station}.csv",index_col = 0)
             print(f"{args.station}: Loaded IF segments")
 
         except (FileNotFoundError, OSError):
             print(f"{args.station}: Isolation forest segments do not exist. Please run get_if_segments.py.")
 
-        # ref_segments = []
-        # for i in tqdm(range(args.num_seg),desc=f"{args.station}: Limiting reference segment lengths"):
-        #      ref_segments.append(limit_segment_length(if_segments["start"][i],if_segments["stop"][i],paths,if_mod))
+        if_segments = []
+        n = min(args.num_seg, if_segments_df.shape[0])
 
-        ref_segments = {"start":  if_segments["start"][:args.num_seg] , "stop":  if_segments["stop"][:args.num_seg] ,"include": np.repeat("yes",args.num_seg)}
-        ref_segments = pd.DataFrame(ref_segments)
-        ref_segments.to_csv(f"{dtw_path}/{args.station}.csv", index=False)
+        for i in tqdm(range(n),desc=f"{args.station}: Limiting IF segment lengths"):
+              if_segments.append(limit_segment_length(if_segments_df["start"][i],if_segments_df["stop"][i],paths,if_mod))
+
+        indices = [(i, j, if_segments) for i in range(n) for j in range(i + 1, n)]
+
+        try:
+            with open(f"{dtw_path}/{args.station}_pairwise", 'rb') as f:
+                indices, results = pickle.load(f)
+                print(f"{args.station}: Loaded Existing Pairwise DTW Results")
+
+        except FileNotFoundError:
+            with mp.Pool(mp.cpu_count()) as pool:
+                results = list(tqdm(pool.imap(distribute_pairwise_segment_dtw, indices), total=len(indices),desc=f"{args.station}: Performing Pairwise Segment DTW"))
+
+            with open(f"{dtw_path}/{args.station}_pairwise", 'wb') as f:
+                pickle.dump([indices,results], f)
+
+        # ref_segments = {"start":  if_segments["start"][:args.num_seg] , "stop":  if_segments["stop"][:args.num_seg] ,"include": np.repeat("yes",args.num_seg)}
+        # ref_segments = pd.DataFrame(ref_segments)
+        # ref_segments.to_csv(f"{dtw_path}/{args.station}.csv", index=False)
 
 if __name__ == "__main__":
     main()
