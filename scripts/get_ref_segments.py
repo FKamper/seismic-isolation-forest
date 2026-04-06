@@ -9,6 +9,9 @@ import numpy as np
 from tqdm import tqdm
 from seismicif.datamod.loading_utils import preproc_flow_annotations, extract_split_flows, find_paths, limit_segment_length
 from seismicif.dtw import  distribute_pairwise_segment_dtw, remove_singleton_merges
+from scipy.cluster.hierarchy import linkage
+from scipy.spatial.distance import squareform
+from dynamicTreeCut import cutreeHybrid
 
 def main():
     parser = argparse.ArgumentParser(description="Perform DTW between segments and reference segments.")
@@ -101,14 +104,10 @@ def main():
 
         except (FileNotFoundError, OSError):
             print(f"{args.station}: Isolation forest segments do not exist. Please run get_if_segments.py.")
-
+            return
         if_segments = []
         n = min(args.num_seg, if_segments_df.shape[0])
-
-        for i in tqdm(range(n),desc=f"{args.station}: Limiting IF segment lengths"):
-              if_segments.append(limit_segment_length(if_segments_df["start"][i],if_segments_df["stop"][i],paths,if_mod))
-
-        indices = [(i, j, if_segments) for i in range(n) for j in range(i + 1, n)]
+        if_segments_df  = if_segments_df.iloc[:n,:]
 
         try:
             with open(f"{dtw_path}/{args.station}_pairwise", 'rb') as f:
@@ -116,15 +115,47 @@ def main():
                 print(f"{args.station}: Loaded Existing Pairwise DTW Results")
 
         except FileNotFoundError:
+            for i in tqdm(range(n),desc=f"{args.station}: Limiting IF segment lengths"):
+                if_segments.append(limit_segment_length(if_segments_df["start"][i],if_segments_df["stop"][i],paths,if_mod))
+
+            indices = [(i, j, if_segments) for i in range(n) for j in range(i + 1, n)]
+
             with mp.Pool(mp.cpu_count()) as pool:
                 results = list(tqdm(pool.imap(distribute_pairwise_segment_dtw, indices), total=len(indices),desc=f"{args.station}: Performing Pairwise Segment DTW"))
+
+            indices = [(i, j) for i in range(n) for j in range(i + 1, n)]
 
             with open(f"{dtw_path}/{args.station}_pairwise", 'wb') as f:
                 pickle.dump([indices,results], f)
 
-        # ref_segments = {"start":  if_segments["start"][:args.num_seg] , "stop":  if_segments["stop"][:args.num_seg] ,"include": np.repeat("yes",args.num_seg)}
-        # ref_segments = pd.DataFrame(ref_segments)
-        # ref_segments.to_csv(f"{dtw_path}/{args.station}.csv", index=False)
+
+        print("Clustering segments and extracting reference segments")
+
+        n = max(indices)[1] + 1
+        D = np.zeros([n, n])
+
+        for k in range(len(indices)):
+             i, j = indices[k]
+             D[i, j] = np.median(results[k][0])
+             D[j, i] = D[i, j]
+
+        D = squareform(D)
+        Z = linkage(D, method="complete")
+        clusters = cutreeHybrid(Z, D, minClusterSize=1, deepSplit=3)
+        clusters = clusters["labels"]
+
+
+        ref_templates = []
+        for cl in np.unique(clusters):
+            cluster_segments = if_segments_df[clusters == cl]
+            idx = np.argmax(cluster_segments["scores"])
+            ref_templates.append(cluster_segments.index[idx])
+
+        ref_templ_idx = np.sort(np.array(ref_templates))
+        ref_segments = if_segments_df.iloc[ref_templ_idx,:].copy().reset_index(drop=True)
+        ref_segments = ref_segments[["start", "stop"]]
+        ref_segments["include"] = np.repeat("yes", ref_segments.shape[0])
+        ref_segments.to_csv(f"{dtw_path}/{args.station}.csv", index=False)
 
 if __name__ == "__main__":
     main()
