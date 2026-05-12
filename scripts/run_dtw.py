@@ -98,23 +98,22 @@ def main():
 
         except:
             print("\nScoring Segments")
-            with open(f"{ref_segments_path}/{args.station}_pairwise", 'rb') as f:
-                indices, results = pickle.load(f)
+            # with open(f"{ref_segments_path}/{args.station}_pairwise", 'rb') as f:
+            #     indices, results = pickle.load(f)
 
-            nseg = max(indices)[1] + 1
-            D = np.zeros([nseg,nseg])
+            # nseg = max(indices)[1] + 1
+            # D = np.zeros([nseg,nseg])
 
-            for k in range(len(indices)):
-                i,j = indices[k]
-                D[i,j] = np.median(results[k][0])
-                D[j,i] = D[i,j]
+            # for k in range(len(indices)):
+            #     i,j = indices[k]
+            #     D[i,j] = np.median(results[k][0])
+            #     D[j,i] = D[i,j]
 
-            D = D[np.ix_(idx, idx)]
-
-            print("Loaded reference pairwise DTW distances.")
+            # D = D[np.ix_(idx, idx)]
 
             with open(f"{dtw_path}/{args.station}.pkl", 'rb') as f:
                 results = pickle.load(f)
+                print("Loaded reference pairwise DTW distances.")
 
             X = np.zeros((len(results), len(results[0])))
 
