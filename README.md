@@ -1,7 +1,6 @@
 # Seismic Isolation Forest
 
-This repository contains code for applying the isolation forest trigger to search for mass movements in seismic data, the idea being that mass movements will likely manifest as a significant anomaly in the seismic waveforms. To discriminate between anomalies caused by mass movements and other sources, such as anthropogenic noise and earthquakes, we provide
-code for measuring dissimilarity between segments of the seismic waveforms using dynamic time warping (DTW).  Additionally, we provide code for comparing the classical sta-lta trigger to its isolation forest counterpart.
+This repository contains code for applying the isolation forest trigger to search for mass movements in seismic data, the idea being that mass movements will likely manifest as a significant anomaly in the seismic waveforms. To discriminate between anomalies caused by mass movements and other sources, such as anthropogenic noise and earthquakes, we provide code for measuring dissimilarity between segments of the seismic waveforms using dynamic time warping (DTW).  Additionally, we provide code for comparing the classical sta-lta trigger to its isolation forest counterpart.
 
 
 ## Installation
@@ -27,8 +26,10 @@ pip install -e .
 ## Repository Structure
 
 * /catalogues - contains catalogues for the Illgraben and Greenland seismic networks
-* /data - used to store seismic waveforms. Structure should be /data/network/year/station/channel
+* /data - used to store miniseed recordings. Structure should be /data/network/year/station/channel
 * /notebooks - notebooks for lightweight illustration of source code
 * /output - storage for outputs generated
-* /scripts - python scripts for producing the results of the paper
+* /scripts - python scripts
 * /src - core codebase
+
+## Getting Started

@@ -8,6 +8,13 @@ def get_merge_height(Z, obj_index):
     """
     Returns the first height at which the object with index `obj_index`
     is merged into any cluster.
+
+    Parameters:
+    ----------
+    Z: ndarray
+        linkage matrix from scipy.cluster.hierarchy.linkage
+    obj_index: int
+        The index of the object.
     """
     for row in Z:
         if obj_index in row[:2]:
