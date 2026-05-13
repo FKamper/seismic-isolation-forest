@@ -1,6 +1,6 @@
 # Seismic Isolation Forest
 
-This repository contains code for applying the isolation forest (IF) trigger to search for mass movements in seismic data, the idea being that mass movements will likely manifest as a significant anomaly in the seismic waveforms. As a step towards discriminating between anomalies caused by mass movements and other sources, such as anthropogenic noise and earthquakes, we provide code for measuring dissimilarity between waveform segments using dynamic time warping (DTW). These techniques are condensed into a semi-supervised and unsupervised workflow to explore for mass movements in seismic data.
+This repository contains code for applying the isolation forest (IF) trigger to search for mass movements in seismic data, the idea being that mass movements will likely manifest as a significant anomaly in the seismic waveforms. As a step towards discriminating between anomalies caused by mass movements and other sources, such as anthropogenic noise and earthquakes, we provide code for measuring dissimilarity between waveform segments using dynamic time warping (DTW). The techniques are condensed into a semi-supervised and unsupervised workflow to explore for mass movements in seismic data.
 
 ## Installation
 
@@ -59,7 +59,7 @@ To familiarize yourself with the code base we recommend working through the illu
 
 Additionally the following notebooks exist:
  * if_tests.ipynb: Illustrates concepts related to the isolation forest discussed in Sect. 2.2.1 of the paper.
- *
+ * karat_clustering.ipynb: Notebook for the clustering of the IF segments obtained from KARAT.
  * plots.ipynb: Notebook generating plots for the paper.
 
 ### Scripts
