@@ -2,7 +2,7 @@
 This script extracts reference segments for subsequent use in segment DTW for a given station and training period.The reference segments can be generated
 either from a catalog of events or from an hierarchical clustering using pairwise segment DTW distances.
 
-Example Usage:
+Example usage ~ should be run from the scripts/ directory:
 python get_ref_segments.py -network XP -station ILL11 -channel HHZ.D -tr_start 2018 -tr_end 2020
 
 This script performs the following steps:
@@ -11,17 +11,17 @@ This script performs the following steps:
 3. Saves the resulting reference segments to a CSV file in the output directory.
 
 Notes:
-1. The script assumes that run_if.py has already been run to compute the IF scores for the specified station and training period. If not, it prompts the user to run run_if.py before proceeding.
+1. The script assumes that run_if.py has already been run to compute the IF model for the specified station. If not, it prompts the user to run run_if.py before performing DTW.
 2. If use_catalog is set to "yes":
     - The script assumes that the initial catalog is available in the catalogs directory for the specified network. If not, it prompts the user to provide an initial catalog before proceeding.
-    - The pairwise segment DTW distances are computed between high-confidence event segments over the training period in the catalog.
-    - The pairwise segment DTW distances are used to construct a hierarchical clustering under complete linkage.
+    - Reference segments are extracted as the high-confidence event segments from the initial catalog over the training period.
+    - Pairwise segment DTW distances are computed between reference segments and used to construct a hierarchical clustering under complete linkage.
     - Reference segments that form singleton merges in the hierarchical clustering are removed.
 3. If use_catalog is set to "no":
-    - The script assumes that get_if_segments.py has already been run to extract IF segments for the specified station and training period. If not, it prompts the user to run get_if_segments.py before proceeding.
+    - The script assumes that get_if_segments.py has already been run to extract IF segments for the specified station. If not, it prompts the user to run get_if_segments.py before proceeding.
     - The pairwise segment DTW distances are computed between the IF segments over the training period. If the number of IF segments exceeds the num_seg argument, only the leading num_seg segments are used.
     - The pairwise segment DTW distances are used to construct a hierarchical clustering under complete linkage.
-    - The hierarchical clustering is cut using the hybrid dynamic tree cut method with a minimum cluster size of 1 and deep split of 3.
+    - Clusters are obtained using the Dynamic Hybrid cut method with a minimum cluster size of 1 and deep split of 3.
     - Reference segments are extracted as those IF segments with the highest anomaly score within each cluster.
 """
 import argparse

@@ -1,9 +1,9 @@
 """
-Script to calibrate the Short-Term Average to Long-Term Average (SLTA) trigger parameters for a given station and training period.
-Computes the IOU between the SLTA segments and event segments from the initial catalog corresponding to a candidate set of
+Script to calibrate the Short-Term Average over Long-Term Average STA-LTA trigger parameters for a given station and training period.
+Computes the IOU between the STA-LTA segments and event segments from the initial catalog corresponding to a candidate set of
 parameters, and selects the parameters that maximizes the IOU using local grid searches.
 
-Example Usage:
+Example usage ~ should be run from the scripts/ directory:
 python calibrate_slta.py -network XP -station ILL11 -channel HHZ.D -tr_start 2018 -tr_end 2020
 
 This script performs the following steps:

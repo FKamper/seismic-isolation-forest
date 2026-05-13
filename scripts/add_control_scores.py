@@ -6,8 +6,8 @@ python add_control_scores.py -network DK -target_station KARAT -control_station 
 
 This script performs the following steps:
     1. Parses command-line arguments for network, target station, control station, channel and evaluation period.
-    2. Loads the IF segments for the target station.
-    3. For each IF segment, extracts the maximum of the corresponding IF anomaly scores from the control station for the same time period.
+    2. Loads the IF segments for the target station and extracts the 30 minutes most anomalous sub-segment for each.
+    3. For each limited IF segment, extracts the maximum of the corresponding IF anomaly scores from the control station for the same time period.
     4. Adds the control station IF anomaly scores as a new column to the target station IF segments dataframe and saves the updated dataframe to a CSV file in the output directory.
 
 Notes:

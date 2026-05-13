@@ -11,6 +11,7 @@ The script performs the following steps:
 Notes:
 - The script assumes that the scored segments have already been extracted and stored in the output directory for the specified station and evaluation period. If not, it prompts the user to generate the scored segments before proceeding.
 - The script assumes that the calibration catalog is available in the catalogs directory for the specified network. If not, it prompts the user to provide a calibration catalog before proceeding.
+- Lower confidence segments in the calibration catalog do not affect the calibration procedure.
 """
 import argparse
 import os

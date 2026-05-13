@@ -1,7 +1,7 @@
 """
 This script performs Dynamic Time Warping (DTW) between segments and reference segments for a given station and evaluation period.
 
-Example Usage:
+Example usage ~ should be run from the scripts/ directory:
 python run_dtw.py -network XP -station ILL11 -channel HHZ.D -eval_start 2018 -eval_end 2020 -score yes
 
 This script performs the following steps:
@@ -13,10 +13,10 @@ This script performs the following steps:
    - rerank the IF segments by their mean segment DTW distance to the reference segments and save the resulting scored segments to a CSV file in the output directory.
 
 Notes:
-- The script assumes that run_if.py has already been run to compute the IF scores for the specified station and training period. If not, it prompts the user to run run_if.py before performing DTW.
-- The script assumes that the IF segments have already been extracted and stored in the output directory for the specified station and evaluation period. If not, it prompts the user to run get_if_segments.py before performing DTW.
-- The script assumes that the reference segments have already been extracted and stored in the output directory for the specified station and training period. If not, it prompts the user to run get_ref_segments.py before performing DTW.
-- If the score argument is set to "yes", the script assumes that the output directory for the scored segments exists for the specified station. If not, it prompts the user to create the output directory before scoring the segments.
+- The script assumes that run_if.py has already been run to compute the IF model for the specified station. If not, it prompts the user to run run_if.py before performing DTW.
+- The script assumes that the IF segments have already been extracted and stored in the output directory for the specified station. If not, it prompts the user to run get_if_segments.py before performing DTW.
+- The script assumes that the reference segments have already been extracted and stored in the output directory for the specified station. If not, it prompts the user to run get_ref_segments.py before performing DTW.
+- If the score argument is set to "yes", the script assumes that the output directory for the scored segments exists. If not, it prompts the user to create the output directory before scoring the segments.
 """
 import argparse
 import os

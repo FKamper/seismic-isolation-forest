@@ -43,7 +43,7 @@ The miniseed recordings containing the seismis waveforms should be stored in the
 
 For example in the illustrations we use data obtained from the Illgraben seismic network in 2018 for station ILL18 and channel EHZ.D. Correspondingly we use the folder:
 
-"../data/XP/2018/ILL18/EHZ.D"
+"/data/XP/2018/ILL18/EHZ.D"
 
 where XP is used to refer to Illgraben. The network_name is used to refer to the corresponding network in the Python scripts.
 
@@ -67,10 +67,19 @@ Additionally the following notebooks exist:
 
 The repository contains several python scripts to generate output. The scripts themselves are built to flag missing folders and make suggestions where to create them.
 
-To generate output for a given station in terms of the IF trigger:
- * run_if.py: Trains an IF to miniseed recordings and creates a csv file containing time series of the IF anomaly scores.
- * calibrate_if_trigger.py: Calibrates onset and offset thresholds of the IF trigger to a catalog. This step is optional.
- * get_if_segments.py: Extracts IF segments from the data using calibrated thresholds if they exist, otherwise use defaults.
+To generate output for a given station in terms of the IF trigger the following should be run in order from the scripts/ directory:
+ * run_if.py: Train an isolation forest to seismic waveforms from a given station and compute time series of the corresponding anomaly scores.
+ * calibrate_if_trigger.py: Calibrate the IF trigger thresholds for a given station.
+ * get_if_segments.py: Extracts IF segments from time series of IF anomaly scores for a given station.
 
-To generate output for a given station in terms of DTW:
- * these scripts only work if the get_if_segments.py script was run before.
+To generate output for a given station in terms of DTW the following should be run in order from the scripts/ directory:
+ * get_ref_segments.py: Extracts reference segments for subsequent use in segment DTW for a given station.
+ * run_dtw.py: Performs Dynamic Time Warping (DTW) between segments and reference segments.
+
+To generate output for a given station in terms of the classical STA-LTA trigger the following should be run in order from the scripts/ directory:
+ * calibrate_slta.py: Calibrate the Short-Term Average over Long-Term Average STA-LTA trigger parameters.
+ * get_slta_segments.py: Extracts STA-LTA segments from miniseed recordings.
+
+In addition the following scripts are relevant:
+ * get_detections.py: Generate detections according to the semi-supervised workflow.
+ * add_control_scores.py: Add time series of IF anomaly scores from a control station to time series of IF anomaly scores from a target station.

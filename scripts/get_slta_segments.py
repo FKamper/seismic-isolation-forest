@@ -2,8 +2,8 @@
 This script extracts STA-LTA segments from the miniseed recordings for a given station and evaluation period.
 The resulting segments are saved as CSV files in the output directory.
 
-Example Usage:
-python get_sta_lta_segments.py -network XP -station ILL11 -eval_start 2018 -eval_end 2020
+Example usage ~ should be run from the scripts/ directory:
+python get_slta_segments.py -network XP -station ILL11 -channel HHZ.D -eval_start 2018 -eval_end 2022
 
 This script performs the following steps:
 1. Parses command-line arguments for network, station, and evaluation time period.

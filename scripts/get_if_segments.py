@@ -2,7 +2,7 @@
 This script extracts IF segments from time series of IF anomaly scores for a given station and evaluation period.
 The resulting segments are saved as CSV files in the output directory.
 
-Example Usage:
+Example usage ~ should be run from the scripts/ directory:
 python get_if_segments.py -network XP -station ILL11 -eval_start 2018 -eval_end 2020
 
 This script performs the following steps:
@@ -12,8 +12,9 @@ This script performs the following steps:
 4. Saves the resulting segments to a CSV file in the output directory.
 
 Notes:
-- The script assumes that run_if.py has already been run to compute the IF scores for the specified station and training period. If not, it prompts the user to run run_if.py before proceeding.
+- The script assumes that run_if.py has already been run to compute the time series of IF anomaly scores for the specified station. If not, it prompts the user to run run_if.py before extracting segments.
 - The script assumes that calibrate_if_trigger.py has already been run to calibrate the trigger thresholds for the specified station. If not, it uses rule of thumb thresholds.
+- Loading the IF scores can take a couple of minutes.
 """
 import argparse
 import os
@@ -73,7 +74,7 @@ def main():
 
     mask = (scores_df["start"] <= eval_end) & (scores_df["stop"] >= eval_start)
     scores_df = scores_df[mask].reset_index(drop=True)
-
+    #could be needed to make the sampling rate more general...here it is every 50 seconds.
     if_st = create_if_stream(scores_df, station=args.station, sr=0.02, network=args.network)
     if_segments = stream_trigger_detections(if_st, onset_thres, offset_thres)
     if_segments.to_csv(f"../output/{args.network}/if/segments/{args.station}.csv")

@@ -2,15 +2,15 @@
 Script to train an isolation forest to seismic waveforms extracted from a given network, station, channel and specified training time period,
 and compute time series of the corresponding anomaly scores over a specified evaluation time period.
 
-Example Usage:
+Example usage ~ should be run from the scripts/ directory:
 python run_if.py -network XP -station ILL11 -channel HHZ.D -tr_start 2018 -tr_end 2020 -eval_start 2018 -eval_end 2022
 
 This script performs the following steps:
 1. Parses command-line arguments for network, station, channel, training and evaluation time periods.
 2. Finds the paths for the training and evaluation data.
 3. Trains the isolation forest model if it doesn't already exist.
-4. Computes anomaly scores using the trained model if they don't already exist.
-5. Saves the trained model and computed scores to the specified output directories.
+4. Computes time series of IF anomaly scores using the trained model if they don't already exist.
+5. Saves the trained model and time series of IF anomaly scores to the specified output directories.
 """
 import argparse
 import os
