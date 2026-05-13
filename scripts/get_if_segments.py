@@ -1,3 +1,20 @@
+"""
+This script extracts IF segments from time series of IF anomaly scores for a given station and evaluation period.
+The resulting segments are saved as CSV files in the output directory.
+
+Example Usage:
+python get_if_segments.py -network XP -station ILL11 -eval_start 2018 -eval_end 2020
+
+This script performs the following steps:
+1. Parses command-line arguments for network, station, and evaluation time period.
+2. Loads the time series of IF scores for the specified station.
+3. Extracts the IF segments.
+4. Saves the resulting segments to a CSV file in the output directory.
+
+Notes:
+- The script assumes that run_if.py has already been run to compute the IF scores for the specified station and training period. If not, it prompts the user to run run_if.py before proceeding.
+- The script assumes that calibrate_if_trigger.py has already been run to calibrate the trigger thresholds for the specified station. If not, it uses rule of thumb thresholds.
+"""
 import argparse
 import os
 import pandas as pd
@@ -9,7 +26,7 @@ from seismicif.datamod.trigger_utils import stream_trigger_detections
 from seismicif.isolation_forest import create_if_stream
 
 def main():
-    parser = argparse.ArgumentParser(description="Train Isolation Forest and Compute Anomaly Scores")
+    parser = argparse.ArgumentParser(description="Extract IF segments from time series of IF scores for a given station and evaluation period.")
     parser.add_argument("-network", type=str, required=True, help="Network contain the IF scores.")
     parser.add_argument("-station", type=str, required=True, help="Station to calibrate IF trigger to.")
     parser.add_argument("-eval_start", type=int, required=True, help="Year to start Evaluation")

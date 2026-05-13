@@ -1,3 +1,19 @@
+"""
+This script extracts STA-LTA segments from the miniseed recordings for a given station and evaluation period.
+The resulting segments are saved as CSV files in the output directory.
+
+Example Usage:
+python get_sta_lta_segments.py -network XP -station ILL11 -eval_start 2018 -eval_end 2020
+
+This script performs the following steps:
+1. Parses command-line arguments for network, station, and evaluation time period.
+2. Extracts the STA-LTA segments.
+3. Saves the resulting segments to a CSV file in the output directory.
+
+Notes:
+- The script assumes that calibrate_sta_lta_trigger.py has already been run to calibrate the trigger thresholds for the specified station. If not, it uses rule of thumb thresholds.
+- As far as is feasible (i.e. available data and no breakages) we append the seismic waveform of the previous day so that the STA-LTA can immediately compute its characteristic function.
+"""
 import argparse
 import os
 import pandas as pd

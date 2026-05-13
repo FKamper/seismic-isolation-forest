@@ -1,3 +1,17 @@
+"""
+Script to generate detections from scored segments for a given station and evaluation period.
+
+The script performs the following steps:
+    1. Parses command-line arguments for network, station, method used to score segments, training time period and evaluation time period.
+    2. Loads the scored segments for the specified station and evaluation period.
+    3. Calibrates the score threshold and minimum detection length by computing the IOU between the scored segments and high confidence event segments from the calibration catalog over the training period.
+    4. Generates detections by applying the calibrated score threshold and minimum detection length to the scored segments for the evaluation period.
+    5. Saves the resulting detections to a CSV file in the output directory.
+
+Notes:
+- The script assumes that the scored segments have already been extracted and stored in the output directory for the specified station and evaluation period. If not, it prompts the user to generate the scored segments before proceeding.
+- The script assumes that the calibration catalog is available in the catalogs directory for the specified network. If not, it prompts the user to provide a calibration catalog before proceeding.
+"""
 import argparse
 import os
 import pandas as pd

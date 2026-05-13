@@ -1,12 +1,26 @@
+"""
+Script to add time series of IF anomaly scores from a control station to time series of IF anomaly scores from a target station.
+
+Example Usage:
+python add_control_scores.py -network DK -target_station KARAT -control_station KARAT_CONT -channel HHZ.D -eval_start 2022 -eval_end 2023
+
+This script performs the following steps:
+    1. Parses command-line arguments for network, target station, control station, channel and evaluation period.
+    2. Loads the IF segments for the target station.
+    3. For each IF segment, extracts the maximum of the corresponding IF anomaly scores from the control station for the same time period.
+    4. Adds the control station IF anomaly scores as a new column to the target station IF segments dataframe and saves the updated dataframe to a CSV file in the output directory.
+
+Notes:
+- The script assumes that run_if.py has already been run for both the target and control stations. If not, it prompts the user to run run_if.py before adding control scores.
+- The script assumes that get_if_segments.py has already been run to compute the IF segments for the target station. If not, it prompts the user to run get_if_segments.py before adding control scores.
+"""
+
 import argparse
 import os
 import pandas as pd
 import numpy as np
-import obspy
 import joblib
-# import json
 
-#from seismicif.datamod.loading_utils import preproc_flow_annotations, extract_split_flows, find_paths, limit_segment_length
 from seismicif.datamod.loading_utils import find_paths, limit_segment_length, preproc_flow_annotations
 from tqdm import tqdm
 
@@ -85,31 +99,8 @@ def main():
             control_scores.append(np.nan)
             continue
 
-
     segments["control_scores"] = control_scores
     segments.to_csv(segments_path)
-
-
-    # try:
-    #     print(f"Loading IF scores for control station. Can take a few seconds...")
-    #     control_df = pd.read_csv(f"../output/{args.network}/if/scores/{args.control_station}.csv",index_col=0)
-    #     control_df["start"] = [obspy.UTCDateTime(str(i)) for i in control_df["start"]]
-    #     control_df["stop"] = [obspy.UTCDateTime(str(i)) for i in control_df["stop"]]
-
-    # except (FileNotFoundError, OSError):
-    #     print(f"No IF scores found for control station. Please run run_if.py to compute scores.")
-    #     return
-
-    # control_scores = []
-    # #Todo: this loop can probably be optimized
-    # for i in tqdm(range(segments.shape[0]),desc="Adding control scores to target station IF scores..."):
-    #     _, _ , t0, t1 = limit_segment_length(segments["start"][i], segments["stop"][i], paths, if_mod)
-    #     subset = control_df.loc[(control_df["start"] >= t0) & (control_df["stop"] <= t1),"anomaly_score"]
-    #     max_score = subset.max() if not subset.empty else np.nan
-    #     control_scores.append(max_score)
-
-    # segments["control_scores"] = control_scores
-
 
 if __name__ == "__main__":
     main()

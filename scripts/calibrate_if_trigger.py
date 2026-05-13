@@ -1,3 +1,22 @@
+"""
+Script to calibrate the IF trigger thresholds for a given station and training period. Computes the IOU between the IF segments and event segments from the initial catalog
+corresponding to onset and offset thresholds taken from a grid, and selects the thresholds that maximizes the IOU.
+
+Example Usage:
+python calibrate_if_trigger.py -network XP -station ILL11 -tr_start 2018 -tr_end 2020
+
+This script performs the following steps:
+1. Parses command-line arguments for network, station, and training time period.
+2. Loads the flow annotations for the specified station and training period.
+3. Loads the IF scores for the specified station.
+4. Calibrates the IF trigger thresholds by computing the IOU between IF segments and flow annotations.
+5. Saves the calibrated trigger thresholds to a JSON file in the segments output directory.
+
+Notes:
+- When computing the IOU, we only consider those miniseed recordings containing at least one catalog segment from the initial catalog.
+- The script assumes that run_if.py has already been run to compute the IF scores for the specified station and training period. If not, it prompts the user to run run_if.py before calibrating the trigger.
+- The script assumes that the initial catalog is available in the catalogs directory for the specified network. If not, it prompts the user to provide an initial catalog before calibrating the trigger.
+"""
 import argparse
 import os
 import pandas as pd
@@ -11,7 +30,7 @@ from seismicif.isolation_forest import create_if_stream
 from seismicif.metrics import iou
 
 def main():
-    parser = argparse.ArgumentParser(description="Train Isolation Forest and Compute Anomaly Scores")
+    parser = argparse.ArgumentParser(description="Calibrate the IF trigger thresholds for a given network, station, channel and training period.")
     parser.add_argument("-network", type=str, required=True, help="Network contain the IF scores.")
     parser.add_argument("-station", type=str, required=True, help="Station to calibrate IF trigger to.")
     parser.add_argument("-tr_start", type=int, required=True, help="Year to start Training")

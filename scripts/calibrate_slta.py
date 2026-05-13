@@ -1,3 +1,25 @@
+"""
+Script to calibrate the Short-Term Average to Long-Term Average (SLTA) trigger parameters for a given station and training period.
+Computes the IOU between the SLTA segments and event segments from the initial catalog corresponding to a candidate set of
+parameters, and selects the parameters that maximizes the IOU using local grid searches.
+
+Example Usage:
+python calibrate_slta.py -network XP -station ILL11 -channel HHZ.D -tr_start 2018 -tr_end 2020
+
+This script performs the following steps:
+1. Parses command-line arguments for network, station, channel and training time period.
+2. Loads the initial catalog and relevant miniseed recordings for the specified station and training period.
+3. Performs local grid searches to select parameters.
+4. Saves the calibrated trigger parameters to a JSON file in the segments output directory.
+
+Notes:
+- When computing the IOU, we only consider those miniseed recordings containing at least one catalog segment from the initial catalog.
+- The script assumes that the initial catalog is available in the catalogs directory for the specified network. If not, it prompts the user to provide an initial catalog before calibrating the trigger.
+- As far as is feasible (i.e. available data and no breakages) we append the seismic waveform of the previous day so that the STA-LTA can immediately compute its characteristic function.
+- The local grid search is performed around the parameters corresponding to the best IOU at each iteration, and stops when no better parameters are found in the local neighborhood.
+- A limit is placed on the number of local searches that can be performed.
+"""
+
 import argparse
 import os
 import pandas as pd

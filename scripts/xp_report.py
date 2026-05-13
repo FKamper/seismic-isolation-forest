@@ -1,3 +1,6 @@
+"""
+Script to write a report for the Illgraben dataset, including metrics for the IF, STA-LTA and DTW triggers over the training and testing periods.
+"""
 import os
 import numpy as np
 import pandas as pd
