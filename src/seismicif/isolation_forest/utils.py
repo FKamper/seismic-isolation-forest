@@ -91,45 +91,6 @@ def train_if(
     return if_mod
 
 
-# def compute_c(n):
-#     """
-#     Compute the average path length of an unsuccessful search in a binary search tree.
-#     n can be an integer or a NumPy array.
-#     """
-#     gamma = 0.5772156649
-#     n = np.array(n)
-#     c = np.zeros_like(n, dtype=float)
-#     mask = n > 1
-#     c[mask] = 2 * (np.log(n[mask] - 1) + gamma) - 2 * (n[mask] - 1) / n[mask]
-#     return c
-
-
-# def reweighted_score_samples(model, X):
-#     """
-#     Compute Isolation Forest anomaly scores manually, reproducing model.score_samples.
-
-#     Parameters:
-#         model: trained sklearn IsolationForest
-#         X: array-like of shape (n_samples, n_features)
-
-#     Returns:
-#         scores: array of anomaly scores for each sample
-#     """
-#     scores = []
-
-#     for tree in model.estimators_:
-#         node_counts = tree.decision_path(X).toarray().sum(axis=1)
-#         leaf_nodes = tree.apply(X)
-#         n_leaf = tree.tree_.n_node_samples[leaf_nodes]
-#         edges = node_counts - 1
-
-#         h = edges + compute_c(n_leaf)
-#         scores.append(h / compute_c(tree.tree_.n_node_samples[0]))
-
-#     scores = np.array(scores).T
-#     return 2 ** (-scores.mean(axis=1))
-
-
 def compute_scores(
     stream_paths,
     if_mod,

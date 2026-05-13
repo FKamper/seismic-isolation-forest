@@ -4,7 +4,7 @@ from obspy.signal.trigger import trigger_onset
 from datetime import timedelta
 
 
-def trace_trigger_detections(tr, onset_thres, offset_thres, lag=100, max_len=1800):
+def trace_trigger_detections(tr, onset_thres, offset_thres, lag=100):
     """
     Extracts segments flagged by a triggering algorithm over a seismic trace for a specified onset-
     and offset threshold.
