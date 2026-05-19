@@ -1,5 +1,14 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite the following preprint."
+message: "If you use this software, please cite the accompanying preprint."
+
+title: "seismic-isolation-forest"
+
+authors:
+  - family-names: Kamper
+    given-names: Francois
+  - family-names: Paitz
+    given-names: Patrick
+
 preferred-citation:
   type: article
   authors:
@@ -16,6 +25,4 @@ preferred-citation:
     - family-names: Salzmann
       given-names: Mathieu
   title: "Exploring seismic mass-movement data with anomaly detection and dynamic time warping"
-  journal: "EGUsphere"
-  year: 2025
   doi: "10.5194/egusphere-2025-3864"
